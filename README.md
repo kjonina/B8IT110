@@ -1,8 +1,8 @@
 # B8IT110
 Learning Journal for my HDIP project 
 
-# Learning Outcomes
-I aimed and succeeed to:
+# Learning Outcomes of the HDIP project
+I aim to:
 - [ ] download Yahoo Finance data
 - [ ] use Plotly to design an interactive visualisations such as price chart, apply functions such as slider input, tabs, and display images with ‘plotly’ packages. 
 - [ ] build a strong foundation for Machine Learning models such as Time Series (ARIMA and Prophet) to forecast the price of cryptocurrencies
