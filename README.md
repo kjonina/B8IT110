@@ -8,7 +8,11 @@ I aimed and succeeed to:
 - [ ] build a strong foundation for Machine Learning models such as Time Series (ARIMA and Prophet) to forecast the price of cryptocurrencies
 - [ ] build and design an interactive web application with Django in Python language.
 
-## 17th June 2017
+## 20th May 2021
+Revised Time Series in DataCamp
+![Tutorial _Time_Series_Analysis_in_Python.png](https://github.com/kjonina/B8IT110/blob/main/Tutorial%20%20-%20ARIMA%20Models%20in%20Python.png)
+
+## 17th June 2021
 Revised Time Series in DataCamp
 ![Tutorial_ARIMA_Models_in_Python.png](https://github.com/kjonina/B8IT110/blob/main/Tutorial%20%20-%20ARIMA%20Models%20in%20Python.png)
 
