@@ -10,6 +10,6 @@ I aimed and succeeed to:
 
 ## 17th June 2017
 Revised Time Series in DataCamp
-!['Tutorial  - ARIMA Models in Python'](https://github.com/kjonina/personal_Netflix/blob/main/Graph/Karina_Month_Year_df_graph.png)
+![Tutorial_ARIMA_Models_in_Python.png](https://github.com/kjonina/B8IT110/blob/main/Tutorial%20%20-%20ARIMA%20Models%20in%20Python.png)
 
 
