@@ -21,11 +21,11 @@ Had meeting with supervisor
 ## 18h June 2021
 - Designed the graph the most important graph
 
-![sub_plots_line_candle_volume.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_line_candle_volume.png)
+![sub_plots_line_candle_volume.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_line_candle_volume.PNG)
 
-![sub_plots_hist_and_box.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_hist_and_box.png)
+![sub_plots_hist_and_box.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_hist_and_box.PNG)
 
-![training_and_test_graph.png](https://github.com/kjonina/B8IT110/blob/main/training_and_test_graph.png)
+![training_and_test_graph.png](https://github.com/kjonina/B8IT110/blob/main/training_and_test_graph.PNG)
 
 ##### Selection and Functions 
 Created an input variable where the user is asked to type in their own chosen crypto
