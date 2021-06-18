@@ -19,7 +19,7 @@ Revised Time Series in DataCamp
 Had meeting with supervisor
 
 ## 18h June 
-#####Created several complex grapsh
+##### Created several complex grapsh
 
 ![sub_plots_line_candle_volume.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_line_candle_volume.PNG)
 
