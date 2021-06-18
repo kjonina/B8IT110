@@ -16,4 +16,19 @@ Revised Time Series in DataCamp
 Revised Time Series in DataCamp
 ![Tutorial_ARIMA_Models_in_Python.png](https://github.com/kjonina/B8IT110/blob/main/Tutorial%20%20-%20ARIMA%20Models%20in%20Python.png)
 
+Had meeting with supervisor
+
+## 18h June 2021
+- Designed the graph the most important graph
+
+![sub_plots_line_candle_volume.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_line_candle_volume.png)
+
+![sub_plots_hist_and_box.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_hist_and_box.png)
+
+![training_and_test_graph.png](https://github.com/kjonina/B8IT110/blob/main/training_and_test_graph.png)
+
+##### Selection and Functions 
+Created an input variable where the user is asked to type in their own chosen crypto
+Created several functions to build graphs
+
 
