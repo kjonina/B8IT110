@@ -30,5 +30,5 @@ Had meeting with supervisor
 ##### Selection and Functions 
 - Created an input variable where the user is asked to type in their own chosen crypto
 - Created several functions to build graphs
-
+- Created a sophisticated split to insure that all cryptocurrencies will be split on 80/20 rather than year. 
 
