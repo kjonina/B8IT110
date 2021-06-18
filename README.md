@@ -18,8 +18,8 @@ Revised Time Series in DataCamp
 
 Had meeting with supervisor
 
-## 18h June 2021
-- Designed the graph the most important graph
+## 18h June 
+#####Created several complex grapsh
 
 ![sub_plots_line_candle_volume.png](https://github.com/kjonina/B8IT110/blob/main/sub_plots_line_candle_volume.PNG)
 
@@ -28,7 +28,7 @@ Had meeting with supervisor
 ![training_and_test_graph.png](https://github.com/kjonina/B8IT110/blob/main/training_and_test_graph.PNG)
 
 ##### Selection and Functions 
-Created an input variable where the user is asked to type in their own chosen crypto
-Created several functions to build graphs
+- Created an input variable where the user is asked to type in their own chosen crypto
+- Created several functions to build graphs
 
 
