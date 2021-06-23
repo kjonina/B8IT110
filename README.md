@@ -33,3 +33,22 @@ Had meeting with supervisor
 - Created several functions to build graphs
 - Created a sophisticated split to insure that all cryptocurrencies will be split on 80/20 rather than year. 
 
+23rd  June 
+##### Beautiful Soup
+
+Working with Beautiful Soup to scrape the Yahoo Finance to present the user with a list of possible cryptocurrencies to pick.
+
+Created unittests for it too.
+
+FURTHER: need to extract the info 
+
+##### If not in the list
+
+Also tried to create a condition that is the written ticket is not in the cryptolist, then the user has to resubmit the ticket. 
+
+FURTHER: the insert is saved locally and not globally. Need to get that input out the function. 
+
+##### Django Tutorial
+
+Half-way through a tutorial, need to fix environment on the computer and in the project. 
+

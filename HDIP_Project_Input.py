@@ -3,12 +3,14 @@
 """
 Student:        Karina Jonina - 10543032
 Module:         B8IT110
-Module Name:    HDIP PROJECT - Time Series Forecasting of Cryptocurrency
+Module Name:    HDIP PROJECT
+
+Task:           Time Series Forecasting of Cryptocurrency
 """
 
 # Downloading necessary files
 import numpy as np
-from numpy import log
+# from numpy import log
 import pandas as pd
 import yfinance as yf
 import plotly.graph_objs as go
@@ -58,7 +60,53 @@ keys = pd.DataFrame(keys)
 print(keys)
 
 # assigning a value to input
-insert = (str(input('What cryptocurrency would you like to try out?'))).upper()
+insert = str(input('What cryptocurrency would you like to try out?')).upper()
+  
+# =============================================================================
+# Trying to create an error message    
+# ============================================================================
+def select_ticket():
+    print(keys)
+    while True:
+        try:
+            insert = str(input('What cryptocurrency would you like to try out?')).upper()
+            
+        except ValueError:
+            print("Sorry, I didn't understand that.")
+            continue
+    
+        if not insert in cryptolist:
+            print('Sorry. You did not select an available ticket or you misspelled the ticket')
+            
+        else:
+            print(insert)
+            break
+
+''' #only global ''' 
+select_ticket()
+
+
+    
+# assigning a value to input to SMA and LMA
+
+while True:
+    try:
+        insert_SMA = int(input("Please write down the length of time you would like to SMA: "))
+    except ValueError:
+        print("Sorry, I didn't understand that.")
+        continue
+
+    if insert_SMA < 0:
+        print("Sorry, your response must not be negative.")
+        continue
+    else:
+        #age was successfully parsed, and we're happy with its value.
+        #we're ready to exit the loop.
+        break
+if insert_SMA >= 18: 
+    print("You are able to vote in the United States!")
+else:
+    print("You are not able to vote in the United States.")
 
 # =============================================================================
 # Creating a graph examining the price and moving averages
