@@ -55,7 +55,7 @@ Half-way through a tutorial, need to fix environment on the computer and in the 
 ##### Removal of datasets and freeing RAM space
 
 In my previous code, I had a loop that stated:
-- for every crypto in cryptolist, create 10dfs 
+- for every crypto in cryptolist, create a df 
 
 From there, the code worked to select the correct Dataframe and create graphs.
 To use Adfuller-Dickey test, I created a dataframe with just that one dataframe.
