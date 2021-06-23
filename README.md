@@ -52,3 +52,12 @@ FURTHER: the insert is saved locally and not globally. Need to get that input ou
 
 Half-way through a tutorial, need to fix environment on the computer and in the project. 
 
+##### Removal of datasets and freeing RAM space
+
+In my previous code, I had a loop that stated:
+- for every crypto in cryptolist, create 10dfs 
+
+From there, the code worked to select the correct Dataframe and create graphs.
+To use Adfuller-Dickey test, I created a dataframe with just that one dataframe.
+
+However this meant that there were too many dataframes in the RAM and if the datasets had more data, it could clog up the computer.

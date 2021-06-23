@@ -41,50 +41,49 @@ pio.renderers.default = 'browser'
 # Downloading the top 10 cryptocurrencies based on market cap.
 # =============================================================================
 cryptolist = ['BTC-USD','ETH-USD', 'USDT-USD','BNB-USD', 'ADA-USD', 'DOGE-USD','XRP-USD','USDC-USD','DOT1-USD']
+start = "2009-01-01"
+end = dt.datetime.now()
+short_sma = 20
+long_sma = 50
+
+# creating a dataset for each cryptocurrency 
+df = {}
+for crypto in cryptolist :
+    data = yf.download(crypto, start, end,interval = '1d')
+    df[crypto] = pd.DataFrame(data.dropna(), columns = ['Open', 'High','Low','Close', 'Adj Close', 'Volume'])
+    df[crypto]['short_SMA'] = df[crypto].iloc[:,1].rolling(window = short_sma).mean()
+    df[crypto]['long_SMA'] = df[crypto].iloc[:,1].rolling(window = long_sma).mean()
+
+
+keys = df.keys()
+keys = pd.DataFrame(keys)
+print(keys)
 
 # assigning a value to input
-# insert = str(input('What cryptocurrency would you like to try out?')).upper()
+insert = str(input('What cryptocurrency would you like to try out?')).upper()
   
 # =============================================================================
 # Trying to create an error message    
 # ============================================================================
-#def select_ticket():
-#    print(keys)
-#    while True:
-#        try:
-#            insert = str(input('What cryptocurrency would you like to try out?')).upper()
-#            
-#        except ValueError:
-#            print("Sorry, I didn't understand that.")
-#            continue
-#    
-#        if not insert in cryptolist:
-#            print('Sorry. You did not select an available ticket or you misspelled the ticket')
-#            
-#        else:
-#            print(insert)
-#            break
-#
-#''' #only global ''' 
-#select_ticket()
 
-
-while True:
-    try:
-        insert = str(input('What cryptocurrency would you like to try out?')).upper()
+def select_ticket():
+    while True:
+        try:
+            insert = str(input('What cryptocurrency would you like to try out?')).upper()
             
-    except ValueError:
-        print("Sorry, I didn't understand that.")
-        continue
+        except ValueError:
+            print("Sorry, I didn't understand that.")
+            continue
     
-    if not insert in cryptolist:
-        print('Sorry. You did not select an available ticket or you misspelled the ticket')
+        if not insert in cryptolist:
+            print('Sorry. You did not select an available ticket or you misspelled the ticket')
             
-    else:
-        print(insert)
-        break
+        else:
+            print(insert)
+            break
 
 
+select_ticket()
     
 ## assigning a value to input to SMA and LMA
 #while True:
@@ -107,20 +106,6 @@ while True:
 #    print("You are not able to vote in the United States.")
 
 # =============================================================================
-# Creating a new dataset
-# =============================================================================
-start = "2009-01-01"
-end = dt.datetime.now()
-short_sma = 20
-long_sma = 50
-
-# creating a dataset for selected cryptocurrency 
-data = yf.download(insert, start, end,interval = '1d')
-df = pd.DataFrame(data.dropna(), columns = ['Open', 'High','Low','Close', 'Adj Close', 'Volume'])
-df['short_SMA'] = df.iloc[:,1].rolling(window = short_sma).mean()
-df['long_SMA'] = df.iloc[:,1].rolling(window = long_sma).mean()
-
-# =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
 '''https://campus.datacamp.com/courses/introduction-to-data-visualization-with-plotly-in-python/advanced-interactivity?ex=6'''
@@ -133,31 +118,31 @@ def create_graphs(data):
             'Volume of {}'.format(str(data))])
     # Lineplots of price and moving averages
     fig.add_trace(go.Scatter(
-                            x = df.index,
-                            y = df['Close'],
+                            x = df[data].index,
+                            y = df[data]['Close'],
                             name = data, 
                             mode='lines',
                             line = dict(color="black")), row = 1, col = 1)
-    fig.add_trace(go.Scatter(x = df.index,
-                             y = df['short_SMA'],
+    fig.add_trace(go.Scatter(x = df[data].index,
+                             y = df[data]['short_SMA'],
                              name = 'Short SMA',
                              mode = 'lines',
                              line = dict(color="red")), row = 1, col = 1)
-    fig.add_trace(go.Scatter(x = df.index,
-                             y = df['long_SMA'],
+    fig.add_trace(go.Scatter(x = df[data].index,
+                             y = df[data]['long_SMA'],
                              name = 'Long SMA',
                              mode = 'lines',
                              line = dict(color="green")), row = 1, col = 1)
     # Candlestick
-    fig.add_trace(go.Candlestick(x = df.index,
-                    open = df['Open'],
-                    high = df['High'],
-                    low = df['Low'],
-                    close = df['Close'],
+    fig.add_trace(go.Candlestick(x = df[data].index,
+                    open = df[data]['Open'],
+                    high = df[data]['High'],
+                    low = df[data]['Low'],
+                    close = df[data]['Close'],
                     name = 'market data'), row = 2, col = 1)
     # Barplot of volume 
-    fig.add_trace(go.Bar(x = df.index,
-                    y = df['Volume'],
+    fig.add_trace(go.Bar(x = df[data].index,
+                    y = df[data]['Volume'],
                     name = 'Volume',
                     marker = dict(color="black", opacity = True)), row = 3, col = 1)
     # Add titles
@@ -199,16 +184,16 @@ TO FIX
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
 # =============================================================================
-df 
+df_new = df[insert]
 
-df = pd.DataFrame(df, columns = ['Open', 'High','Low','Close', 'Adj Close', 'Volume', 'short_SMA', 'long_SMA'])
+df_new = pd.DataFrame(df_new, columns = ['Open', 'High','Low','Close', 'Adj Close', 'Volume', 'short_SMA', 'long_SMA'])
 
 # ensu
-df.sort_index(inplace = True)
+df_new.sort_index(inplace = True)
 
 # dropping hh:mm:ss from index
-df.index = pd.to_datetime(df.index)
-print(df)
+df_new.index = pd.to_datetime(df_new.index)
+print(df_new)
 
 
 
@@ -217,12 +202,12 @@ def create_hist_and_box(data):
                         subplot_titles=['Histogram of {} price'.format(insert),
                                         'Box plot of {} price'.format(insert)],
                         x_title = 'US Dollars')
-    fig.add_trace(go.Histogram(x = data, name = 'Histogram', nbinsx = round(len(df) / 20)), row=1, col=1)
+    fig.add_trace(go.Histogram(x = data, name = 'Histogram', nbinsx = round(len(df_new) / 20)), row=1, col=1)
     fig.add_trace(go.Box(x = data, name = 'Boxplot'), row=2, col=1)
     fig.update_layout({'title': {'text':'Plots of {} price'.format(insert)}})
     fig.show()
 
-create_hist_and_box(df['Close'])
+create_hist_and_box(df_new['Close'])
 
 
 """
@@ -235,7 +220,7 @@ TO FIX
 # =============================================================================
 
 # assigning the target variable
-y = pd.DataFrame(df['Close'], columns = ['Close'])
+y = pd.DataFrame(df_new['Close'], columns = ['Close'])
 y.sort_index(inplace = True)
 
 print(y.head())
@@ -436,9 +421,9 @@ results.summary()
 # Splitting the data in Training and Test Data
 # =============================================================================
 # Train data - 780%
-df_train = df[:int(0.80*(len(df)))]
+df_train = df_new[:int(0.80*(len(df_new)))]
 # Test data - 20%
-df_test = df[int(0.80*(len(df))):]
+df_test = df_new[int(0.80*(len(df_new))):]
 
 def training_and_test_plot(): 
     # creating a plotly graph for training and test set
