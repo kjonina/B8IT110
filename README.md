@@ -33,7 +33,7 @@ Had meeting with supervisor
 - Created several functions to build graphs
 - Created a sophisticated split to insure that all cryptocurrencies will be split on 80/20 rather than year. 
 
-23rd  June 
+## 23rd  June 
 ##### Beautiful Soup
 
 Working with Beautiful Soup to scrape the Yahoo Finance to present the user with a list of possible cryptocurrencies to pick.
