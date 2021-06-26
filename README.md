@@ -61,3 +61,15 @@ From there, the code worked to select the correct Dataframe and create graphs.
 To use Adfuller-Dickey test, I created a dataframe with just that one dataframe.
 
 However this meant that there were too many dataframes in the RAM and if the datasets had more data, it could clog up the computer.
+
+
+## 26th June 
+##### Fixing Graphs
+Spent some time fixing the graphs so that the y-axis has $, the ticks have better labels, also extract the crypto name from the list 'Bitcoin' and not use the ticket in the graphs. 
+
+Not finished yet.
+
+![training_and_test_graph.png](https://github.com/kjonina/B8IT110/blob/main/training_and_test_graph.PNG)
+
+##### Django Tutorial
+Finished huge chunk and can use this for the thesis. 

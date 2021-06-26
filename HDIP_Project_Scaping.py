@@ -19,22 +19,33 @@ import pandas as pd
 
 
 
-#Getting the cURL
-headers = {
-    'authority': 'en.wikipedia.org',
-    'cache-control': 'max-age=0',
-    'upgrade-insecure-requests': '1',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36',
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-    'sec-fetch-site': 'same-origin',
-    'sec-fetch-mode': 'navigate',
-    'sec-fetch-user': '?1',
-    'sec-fetch-dest': 'document',
-    'referer': 'https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_the_United_Kingdom',
-    'accept-language': 'en-US,en;q=0.9',
-    'cookie': 'WMF-Last-Access=11-Apr-2020; WMF-Last-Access-Global=11-Apr-2020; GeoIP=IE:L:Dublin:53.33:-6.25:v4; enwikimwuser-sessionId=834a72b8c1d593eba087',
-    'if-modified-since': 'Sat, 11 Apr 2020 11:07:07 GMT',
-}
+##Getting the cURL
+#headers = {
+#    'authority': 'en.wikipedia.org',
+#    'cache-control': 'max-age=0',
+#    'upgrade-insecure-requests': '1',
+#    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36',
+#    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+#    'sec-fetch-site': 'same-origin',
+#    'sec-fetch-mode': 'navigate',
+#    'sec-fetch-user': '?1',
+#    'sec-fetch-dest': 'document',
+#    'referer': 'https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_the_United_Kingdom',
+#    'accept-language': 'en-US,en;q=0.9',
+#    'cookie': 'WMF-Last-Access=11-Apr-2020; WMF-Last-Access-Global=11-Apr-2020; GeoIP=IE:L:Dublin:53.33:-6.25:v4; enwikimwuser-sessionId=834a72b8c1d593eba087',
+#    'if-modified-since': 'Sat, 11 Apr 2020 11:07:07 GMT',
+#}
+
+
+#getting the range in yahoo finance
+url_yahoo_finance = []
+for num in range(0,1001,25):
+    url = 'https://finance.yahoo.com/cryptocurrencies/?offset=25&count='+ str(num)
+    url_yahoo_finance.append(url)
+
+
+
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'}
 
 
 
@@ -59,9 +70,9 @@ def get_title(soup):
 #    print(soup.get_text())
 
 
-## get the 
-#def prettify(soup):
-#    print(soup.prettify())
+# get the 
+def prettify(soup):
+    print(soup.prettify())
 
 def find_all_links(soup):
     links = soup.find_all('a')
@@ -105,7 +116,7 @@ def main():
     contents = get_page_contents()
     soup = convert_to_soup(contents)
     get_title(soup)
-#    prettify(soup)
+    prettify(soup)
 
 
 ## picks up correct part: class="Fw(600) C($linkColor)"
