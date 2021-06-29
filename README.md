@@ -73,3 +73,13 @@ Not finished yet.
 
 ##### Django Tutorial
 Finished huge chunk and can use this for the thesis. 
+
+## 29th June 
+
+##### Fixing Graphs
+Continuing to put finishing touches on the plotly graphs
+
+##### Django Tutorial
+Created a new page on the website for thesis.
+Also created a droplet in DigitalOcean to host the site. 
+Used Github to download the Django code onto the DigitalOcean server.
