@@ -30,6 +30,5 @@ class TestCorona(unittest.TestCase):
 #        soup =  HDIP_Project_Scaping.convert_to_soup(self.contents)
 #        self.assertTrue(len(HDIP_Project_Scaping.convert_to_soup(soup)) > 50)
 
-
 if __name__ == '__main__':
     unittest.main()    

@@ -6,6 +6,7 @@ Module:         B8IT110
 Module Name:    HDIP PROJECT
 
 Task:           Time Series Forecasting of Cryptocurrency
+File:           This file is for functions to run the 
 """
 
 # Downloading necessary files
@@ -43,16 +44,14 @@ pio.renderers.default = 'browser'
 # Scraping the Top 20 Cryptocurrencies off Yahoo Finance
 # =============================================================================
 # read the CSV file
-df_cryptolist = pd.read_csv('cryptolist.csv')
+# df_cryptolist = pd.read_csv('cryptolist.csv')
 
-# dropping unnecessary columns 
-df_cryptolist = df_cryptolist[['Symbol','Name','Market Cap']]
 
 # =============================================================================
 # getting a list from the table
 # =============================================================================
 cryptolist = [] 
-def get_crypto(data):
+def get_crypto_df(data):
     index = 0
         
     while index < len(data.iloc[:,0]):
@@ -65,22 +64,19 @@ def get_crypto(data):
             index = len(data.iloc[:,0])
             break
     return cryptolist
-        
-
-get_crypto(df_cryptolist)
-    
-     
+          
 # ============================================================================
 # Trying to create an error message    
 # ============================================================================
-def insert():   
+def create_insert():   
     global crypto_name
     global insert
+    
     while True:
-        print('--------------------------------------------')
-        print('Top 10 Cryptocurrencies')
-        print('--------------------------------------------')
-        print(df_cryptolist.head(len(df_cryptolist)))
+        print('============================================================')
+        print('Top', len(df_cryptolist), 'Cryptocurrencies')
+        print('============================================================')
+        print(df_cryptolist[['Symbol','Name','Market Cap']].head(len(df_cryptolist)))
         try:
             insert = str(input('What cryptocurrency would you like to try out? Please select a symbol: ')).upper()
             #found = df_cryptolist[df_cryptolist['Symbol'].str.contains(insert)]
@@ -94,13 +90,15 @@ def insert():
             print('Sorry. You did not select an available symbol or you misspelled the symbol')
                 
         else:
-            print('--------------------------------------------')
+            print('============================================================')
             print('You have selected: ', insert)
-            print('The name of this cryptocurrency is: ', crypto_name)
-            print('--------------------------------------------')
+            df_new = df_cryptolist.copy()
+            df_new.set_index("Symbol", inplace=True)
+            df_new.head()
+            print('============================================================')
+            print(df_new.loc[insert])
+            print('============================================================')
             break
-
-insert()
 
 # =============================================================================
 # Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
@@ -124,11 +122,14 @@ def create_df(x):
     df['short_SMA'] = df.iloc[:,1].rolling(window = short_sma).mean()
     df['long_SMA'] = df.iloc[:,1].rolling(window = long_sma).mean()
     df['Name'] = crypto_name
-    print('--------------------------------------------')
-    print(crypto_name, '- Full Database')
-    print('--------------------------------------------')
+    print('============================================================')
+    print(crypto_name, '- Full Dataset')
+    print('------------------------------------------------------------')
     print(df.head())
-    print('--------------------------------------------')
+    print('------------------------------------------------------------')
+    print(crypto_name, 'Full Dataset - Column Names')
+    print(df.columns)
+    print('============================================================')
     
     # =============================================================================
     # Assigning the target variable
@@ -139,37 +140,41 @@ def create_df(x):
     y.sort_index(inplace = True)
         # Creating a new variable, examining the difference for each observation
     y['diff'] = y['Close'].diff()
-    # dropping the first na (because there is no difference)
-    y = y.dropna()
+
     # logging the target varialbe due to great variance
     y['log_Close'] = np.log(y['Close'])
+    # Creating a new variable, examining the difference for each observation
+    y['log_Close_diff'] = y['log_Close'].diff()
 
     # logging the target varialbe due to great variance
     y['sqrt_Close'] = np.sqrt(y['Close'])
-    print('--------------------------------------------')
-    print(crypto_name, '- Target Variable')
-    print('--------------------------------------------')
-    print(y.head())
-    print('--------------------------------------------')
+    # Creating a new variable, examining the difference for each observation
+    y['sqrt_Close_diff'] = y['sqrt_Close'].diff()
+    
+    # dropping the first na (because there is no difference)
+    y = y.dropna()
 
-  
-create_df(insert)
+    print('============================================================')
+    print(crypto_name, '- Target Variable')
+    print('------------------------------------------------------------')
+    print(y.head())
+    print('------------------------------------------------------------')
+    print('Column Names')
+    print(y.columns)
+    print('============================================================')
 
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-
-def create_graphs(data):
-
-    fig = make_subplots(rows=3, cols=1, shared_xaxes=True,  subplot_titles=[
+def create_graphs():
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True,  subplot_titles=[
             'Price and Moving Averages of {}'.format(str(crypto_name)),
-            'Candlesticks for {}'.format(str(crypto_name)),
             'Volume of {}'.format(str(crypto_name))])
     # Lineplots of price and moving averages
     fig.add_trace(go.Scatter(
                             x = df.index,
                             y = df['Close'],
-                            name = data, 
+                            name = crypto_name, 
                             mode='lines',
                             customdata = df['Name'], 
                             # corrects hovertemplate labels!
@@ -196,20 +201,6 @@ def create_graphs(data):
                                             "Long Moving Average Price: %{y:$,.2f}<br>"+
                                             "<extra></extra>",
                              line = dict(color="green")), row = 1, col = 1)
-    # Candlestick
-    fig.add_trace(go.Candlestick(x = df.index,
-                    open = df['Open'],
-                    high = df['High'],
-                    low = df['Low'],
-                    close = df['Close'],
-#                    customdata = df['Name'], 
-#                    hovertemplate="<b>%{customdata}</b><br><br>" +
-#                                    "Date: %{x|%d %b %Y} <br>" +
-#                                     "Open Price: %{open:$,.2f}<br>" +
-#                                     "High Price: %{high:$,.2f}<br>" +
-#                                     "Low Price: %{low:$,.2f}<br>"  +
-#                                     "Close Price: %{close:$,.2f}<br>" ,
-                    name = 'market data'), row = 2, col = 1)
     # Barplot of volume 
     fig.add_trace(go.Bar(x = df.index,
                     y = df['Volume'],
@@ -220,16 +211,12 @@ def create_graphs(data):
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Volume: %{y:,.}<br>" +
                                     "<extra></extra>",
-                    marker = dict(color="black", opacity = True)), row = 3, col = 1)
+                    marker = dict(color="black", opacity = True)), row = 2, col = 1)
     # Add titles
     fig.update_layout( 
-            title = 'Price of {}'.format(str(crypto_name)),
-            #changes the size of the plots
-            autosize=False, width = 1800, height = 2000
-            )
+            title = 'Price of {}'.format(str(crypto_name)))
     fig['layout']['yaxis1']['title']='US Dollars'
-    fig['layout']['yaxis2']['title']='US Dollars'
-    fig['layout']['yaxis3']['title']='Volume'
+    fig['layout']['yaxis2']['title']='Volume'
     # X-Axes
     fig.update_xaxes(
         rangeslider_visible = True,
@@ -245,22 +232,66 @@ def create_graphs(data):
                 dict(step = "all")])))
     fig.update_layout(xaxis_rangeslider_visible = False)
     fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
-    fig.update_yaxes(tickprefix = '$', tickformat = ',.',row = 2, col = 1)
-    fig.update_xaxes(rangeslider= {'visible': False}, row = 2, col = 1)
+    #time buttons 
     fig.update_xaxes(rangeselector= {'visible' :False}, row = 2, col = 1)
-    fig.update_xaxes(rangeselector= {'visible': False}, row = 3, col = 1)
+
     #Show
     fig.show()
+#    #writing the graph to html 
+#    fig.write_html('first_figure.html', auto_open=True, include_plotlyjs = 'cdn')
 
 
-# calling the graph
-create_graphs(insert)
+
+def create_candlestick():
+    fig = go.Figure()
+    
+#    hovertext=[]
+#    for i in range(len(df.Open)):
+#        hovertext.append('Date: '+str(df.index[i])+
+#                        '<br>Open: '+str(df.Open[i])+
+#                        '<br>High: '+str(df.High[i])+
+#                        '<br>Low: '+str(df.Open[i])+
+#                         '<br>Close: '+str(df.Close[i]))
 
 
+    # Candlestick
+    fig.add_trace(go.Candlestick(x = df.index,
+                    open = df['Open'],
+                    high = df['High'],
+                    low = df['Low'],
+                    close = df['Close'],
+#                    text=hovertext,
+#                    hoverinfo='text',
+                    name = 'market data'))
+
+    # Add titles
+    fig.update_layout( 
+            title = 'Price of {}'.format(str(crypto_name)))
+    fig['layout']['yaxis']['title']='US Dollars'
+    
+    # X-Axes
+    fig.update_xaxes(
+        rangeslider_visible = True,
+        rangeselector = dict(
+            buttons = list([
+                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
+                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
+                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
+                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
+                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
+                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
+                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
+                dict(step = "all")])))
+    fig.update_layout(xaxis_rangeslider_visible = False)
+    fig.update_yaxes(tickprefix = '$', tickformat = ',.')
+    #Show
+    fig.show()
+#    #writing the graph to html 
+#    fig.write_html('first_figure.html', auto_open=True, include_plotlyjs = 'cdn')
 
 """
 TO FIX
-- Candlestick
+- fix hovertemplate for Candlestick
 - create a slider for short and long SMA
 """
 
@@ -291,39 +322,36 @@ def create_hist_and_box(data):
     fig.update_xaxes(tickprefix = '$', tickformat = ',.')
     fig.show()
 
-# calling the graph
-create_hist_and_box(df['Close'])
-
 
 """
 TO FIX
-- ticks in boxplot and histogram
-
+- hovertemplate in boxplot and histogram
 """
 
 
 # =============================================================================
 # Decomposition
 # =============================================================================
-## Viewing the seasonal decompose of the target variable
-#rcParams['figure.figsize'] = 18, 8
-#decomposition = sm.tsa.seasonal_decompose(y.asfreq('MS'), model='multiplicative')
-#fig = decomposition.plot()
-#plt.show()
+def decomposition_plot():
+    # Viewing the seasonal decompose of the target variable
+    rcParams['figure.figsize'] = 18, 8
+    decomposition = sm.tsa.seasonal_decompose(y.asfreq('MS'), model='multiplicative')
+    fig = decomposition.plot()
+    plt.show()
 
 ## =============================================================================
 ## Adfuller Test
 ## =============================================================================
 # creating a function to run an adfuller-dickey test on target data
 def adfuller_test(data):
-    print ('Results of Dickey-Fuller Test for {}:'.format(insert))
     dftest = adfuller(data)
     dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
     for key,value in dftest[4].items():
         dfoutput['Critical Value (%s)'%key] = value
+    print('============================================================')
+    print('Results of Dickey-Fuller Test for {}:'.format(crypto_name))
+    print('============================================================')
     print (dfoutput)
-
-adfuller_test(y['diff'])
 
 # =============================================================================
 # Creating a plot with analysis and rolling mean and standard deviation
@@ -374,70 +402,56 @@ def test_stationarity(timeseries):
     fig.show()
     
     #Perform Dickey-Fuller test:
-    print ('Results of Dickey-Fuller Test of {}: '.format(crypto_name))
     dftest = adfuller(timeseries, autolag = 'AIC')
     dfoutput = pd.Series(dftest[0:4], 
                          index = ['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
     for key, value in dftest[4].items():
         dfoutput['Critical Value (%s)'%key] = value
+    print('============================================================')
+    print ('Results of Dickey-Fuller Test for {}: '.format(crypto_name))
+    print('============================================================')
     print (dfoutput)
-
-
-test_stationarity(y['Close'])
-
-#test_stationarity(y['log_Close'])
-#
-#test_stationarity(y['sqrt_Close'])
-
-
-# 0th element is test statistic (-1.34)
-# More negative means more likely to be stationary
-# 1st element is p-value: (0.60)
-# If p-value is small → reject null hypothesis. Reject non-stationary.
-# 4th element is the critical test statistics
-
-
 
 # =============================================================================
 # ACF and PACF plots
 # =============================================================================
 
-# Create figure
-fig, (ax1, ax2) = plt.subplots(2,1, figsize=(8,8))
-# Make ACF plot
-plot_acf(y['Close'], lags=30, zero=False, ax=ax1)
-# Make PACF plot
-plot_pacf(y['Close'], lags=30, zero=False, ax=ax2)
-plt.show()
-
-
-
-# df['sum'] is my time series where i want the pacf of.
-df_pacf = pacf(y['Close'], nlags=300)
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x = np.arange(len(df_pacf)),
-    y = df_pacf,
-    name = 'PACF',
-    ))
-fig.update_xaxes(rangeslider_visible = True)
-fig.update_layout(
-    title = "Partial Autocorrelation",
-    xaxis_title = "Lag",
-    yaxis_title = "Partial Autocorrelation",
-    #     autosize = False,
-    #     width = 500,
-         height = 500,
-    )
-fig.show()
-
-from scipy.signal import detrend
-from statsmodels.graphics.tsaplots import plot_acf
-stat_ts = pd.Series(detrend(np.log(y.Close)), index=y.index)
-plot_acf(stat_ts)
-
-from statsmodels.graphics.tsaplots import plot_pacf
-plot_pacf(stat_ts)
+## Create figure
+#fig, (ax1, ax2) = plt.subplots(2,1, figsize=(8,8))
+## Make ACF plot
+#plot_acf(y['Close'], lags=30, zero=False, ax=ax1)
+## Make PACF plot
+#plot_pacf(y['Close'], lags=30, zero=False, ax=ax2)
+#plt.show()
+#
+#
+#
+## df['sum'] is my time series where i want the pacf of.
+#df_pacf = pacf(y['Close'], nlags=300)
+#fig = go.Figure()
+#fig.add_trace(go.Scatter(
+#    x = np.arange(len(df_pacf)),
+#    y = df_pacf,
+#    name = 'PACF',
+#    ))
+#fig.update_xaxes(rangeslider_visible = True)
+#fig.update_layout(
+#    title = "Partial Autocorrelation",
+#    xaxis_title = "Lag",
+#    yaxis_title = "Partial Autocorrelation",
+#    #     autosize = False,
+#    #     width = 500,
+#         height = 500,
+#    )
+#fig.show()
+#
+#from scipy.signal import detrend
+#from statsmodels.graphics.tsaplots import plot_acf
+#stat_ts = pd.Series(detrend(np.log(y.Close)), index=y.index)
+#plot_acf(stat_ts)
+#
+#from statsmodels.graphics.tsaplots import plot_pacf
+#plot_pacf(stat_ts)
 
 # =============================================================================
 # Exploring the difference
@@ -446,7 +460,7 @@ plot_pacf(stat_ts)
 def diff_plot(data):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x = data.index,
-                            y = data['diff'],
+                            y = data,
                             name = str(crypto_name), 
                             mode='lines',
                             customdata = df['Name'],
@@ -456,7 +470,7 @@ def diff_plot(data):
                                     "<extra></extra>"))
     # Add titles
     fig.update_layout(
-        title = 'Price of {}'.format(insert),
+        title = 'Price of {}'.format(crypto_name),
         yaxis_title = 'US Dollars',
         yaxis_tickprefix = '$', yaxis_tickformat = ',.')
     # X-Axes
@@ -475,16 +489,72 @@ def diff_plot(data):
     #Show
     fig.show()
     
-#plotting the graph for ['diff'] variable
-diff_plot(y)
-
-#checking the adfuller of the ['diff'] variable
-adfuller_test(y['diff'])
-
 # =============================================================================
-# Exploring the data
+# Diff and volume plot
 # =============================================================================
 
+def create_diff_volume(data):
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=False,
+                        subplot_titles=['Differnce of {} price'.format(crypto_name),
+                                        'Volume of {}'.format(crypto_name)])
+    # 1.Difference
+    fig.add_trace(go.Scatter(x = data.index,
+                            y = data,
+                            name = str(crypto_name), 
+                            mode='lines',
+                            customdata = df['Name'],
+                            hovertemplate="<b>%{customdata}</b><br><br>" +
+                                    "Date: %{x|%d %b %Y} <br>" +
+                                    "Price Volatility: %{y:$,.2f}<br>"+
+                                    "<extra></extra>"), row = 1, col =1)
+    #2. Volume
+    # Barplot of volume 
+    fig.add_trace(go.Bar(x = df.index,
+                    y = df['Volume'],
+                    name = 'Volume',
+                    # corrects hovertemplate labels!
+                    customdata = df['Name'],  
+                    hovertemplate="<b>%{customdata}</b><br><br>" +
+                                    "Date: %{x|%d %b %Y} <br>" +
+                                    "Volume: %{y:,.}<br>" +
+                                    "<extra></extra>",
+                    marker = dict(color="black", opacity = True)), row = 2, col = 1)
+    # Add titles
+    fig.update_layout( 
+            title = 'Price of {}'.format(str(crypto_name)))
+    fig['layout']['yaxis1']['title']='US Dollars'
+    fig['layout']['yaxis2']['title']='Volume'
+    # X-Axes
+    fig.update_xaxes(
+        rangeslider_visible = True,
+        rangeselector = dict(
+            buttons = list([
+                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
+                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
+                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
+                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
+                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
+                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
+                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
+                dict(step = "all")])))
+    fig.update_layout(xaxis_rangeslider_visible = False)
+    fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
+    #time buttons 
+    fig.update_xaxes(rangeselector= {'visible' :False}, row = 2, col = 1)
+
+    #Show
+    fig.show()
+
+
+"""
+TO FIX
+- hovertemplate in boxplot and histogram
+"""
+
+
+# =============================================================================
+# Exploring the logged data
+# =============================================================================
 # function to create a histogram and lineplot of logged data
 def log_create_hist_and_line(data):
     fig = make_subplots(rows=2, cols=1,
@@ -503,46 +573,39 @@ def log_create_hist_and_line(data):
 
     fig.show()
 
-# producing the graph
-log_create_hist_and_line(y['log_Close'])
-
-test_stationarity(y['log_Close'])
-
-
-
 # =============================================================================
 # ARIMA Models
 # =============================================================================
 
 
 
-model = ARMA(y['diff'], order=(1,1))
-results = model.fit()
-
-results.summary()
+#model = ARMA(y['diff'], order=(1,1))
+#results = model.fit()
+#
+#results.summary()
 
 
 # =============================================================================
 # Splitting the data in Training and Test Data
 # =============================================================================
-def create_train_and_test(x):
+def create_train_and_test():
     global df_train 
     global df_test
     # Train data - 80%
-    df_train = x[:int(0.80*(len(df)))]
+    df_train = y[:int(0.80*(len(df)))]
     print('============================================================')
-    print('Training Set')
+    print('{} Training Set'.format(crypto_name))
     print('============================================================')
     print(df_train.head())
+    print('Training set has {} rows and {} columns.'.format(*df_train.shape))
     # Test data - 20%
-    df_test = x[int(0.80*(len(df))):]
+    df_test = y[int(0.80*(len(df))):]
     print('============================================================')
-    print('Test Set')
+    print('{} Test Set'.format(crypto_name))
     print('============================================================')
     print(df_test.head())
-
+    print('Test set has {} rows and {} columns.'.format(*df_test.shape))
     
-create_train_and_test(df)
 
 def training_and_test_plot(): 
     # creating a plotly graph for training and test set
@@ -573,11 +636,3 @@ def training_and_test_plot():
     fig.update_layout({'title': {'text':'Training and Test Set Plot'}},
                       yaxis_tickprefix = '$', yaxis_tickformat = ',.')
     fig.show()
-    
-training_and_test_plot()
-
-"""
-TO FIX
-- ticks
-- create a slider for time period?
-"""
