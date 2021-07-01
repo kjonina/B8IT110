@@ -20,7 +20,7 @@ import pandas as pd
 from pandas.io.json import json_normalize
 
 
-# getting the range in yahoo finance
+## getting the range in yahoo finance
 #url_yahoo_finance = []
 #for num in range(0,1001,25):
 #    url = 'https://finance.yahoo.com/cryptocurrencies/?offset=25&count='+ str(num)
@@ -47,7 +47,7 @@ def convert_to_soup(content):
 
 # function to get pattern for JSON
 def get_pattern(soup):
-    global df_cryptolist
+    global crypto_json
     
     pattern = re.compile(r'\s--\sData\s--\s')
 
@@ -72,7 +72,10 @@ def get_pattern(soup):
 #    print('Printing First JSON - Bitcoin')
 #    print('=====================================')
 #    print(crypto_json[0])
+
+def get_df(json_data):
     
+    global df_cryptolist
     df_cryptolist = pd.io.json.json_normalize(crypto_json)
     
     # creating a dataset with the right columns and correct column names
@@ -86,8 +89,8 @@ def get_pattern(soup):
                    'Volume in Currency (24Hr)': df_cryptolist['volume24Hr.fmt'],
                    'Total Volume All Currencies (24Hr)': df_cryptolist['volumeAllCurrencies.fmt'],
                    'Circulating Supply': df_cryptolist['circulatingSupply.fmt']})
-#    # Checking that it works
-#    print(df_cryptolist.head(1))
+#    # writing the dataset to csv
+    df_cryptolist.to_csv(r"df_cryptolist.csv", index =  False)
     
 # Run live Website
 def main():
@@ -96,6 +99,7 @@ def main():
     soup = convert_to_soup(contents)
     get_title(soup)
     get_pattern(soup)
+    get_df(crypto_json)
     print(df_cryptolist.head(1).transpose())
 
 

@@ -45,8 +45,19 @@ pio.renderers.default = 'browser'
 # Scraping the Top 25 Cryptocurrencies off Yahoo Finance
 # =============================================================================
 
-from HDIP_Project_Scaping_JSON import df_cryptolist
-
+#from HDIP_Project_Scaping_JSON import *
+#
+## Run live Website
+#def main():
+#    global df_cryptolist
+#    contents = get_page_contents()
+#    soup = convert_to_soup(contents)
+#    get_title(soup)
+#    get_pattern(soup)
+#    print(df_cryptolist.head(1).transpose())
+#    
+#if __name__ == '__main__':
+#    main()   
 
 # =============================================================================
 # creating a list from the crypto-table
@@ -56,27 +67,34 @@ get_crypto_df(df_cryptolist)
 # ============================================================================
 # Asking the user for an input   
 # ============================================================================
-create_insert()
+please_choose_crypto()
 
 from HDIP_Project_Functions import crypto_name, insert
 
 # =============================================================================
 # Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
 # =============================================================================
-create_df(insert)
+create_df_for_crypto(insert)
 
 from HDIP_Project_Functions import *
+
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-create_graphs()
+create_graphs(df['Close'])
 
 create_candlestick()
 
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
 # =============================================================================
-create_hist_and_box(df['Close'])
+#create_hist_and_box(y['close_pct_change'])
+
+create_hist_and_box_pct_change()
+
+logged_create_hist_and_box_pct_change()
+
+
 
 # =============================================================================
 # Decomposition
@@ -92,6 +110,9 @@ create_hist_and_box(df['Close'])
 # Creating a plot with analysis and rolling mean and standard deviation
 # =============================================================================
 test_stationarity(y['Close'])
+
+
+test_stationarity(y['Close Percentage Change'])
 
 #test_stationarity(y['diff'])
 

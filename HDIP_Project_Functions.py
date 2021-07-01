@@ -41,11 +41,20 @@ from pylab import rcParams
 pio.renderers.default = 'browser'
 
 # =============================================================================
-# Scraping the Top 20 Cryptocurrencies off Yahoo Finance
+# Reading in files for ease of use
 # =============================================================================
 # read the CSV file
-# df_cryptolist = pd.read_csv('cryptolist.csv')
+df_cryptolist = pd.read_csv('df_cryptolist.csv')
 
+# read the CSV file
+df = pd.read_csv('df.csv')
+
+# read the CSV file
+y = pd.read_csv('y.csv')
+
+crypto_name = 'Bitcoin'
+
+insert = 'BTC-USD'
 
 # =============================================================================
 # getting a list from the table
@@ -68,7 +77,7 @@ def get_crypto_df(data):
 # ============================================================================
 # Trying to create an error message    
 # ============================================================================
-def create_insert():   
+def please_choose_crypto():   
     global crypto_name
     global insert
     
@@ -103,7 +112,7 @@ def create_insert():
 # =============================================================================
 # Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
 # =============================================================================
-def create_df(x):
+def create_df_for_crypto(x):
 
     # =============================================================================
     # Creating a new dataset
@@ -113,8 +122,8 @@ def create_df(x):
     
     start = "2009-01-01"
     end = dt.datetime.now()
-    short_sma = 20
-    long_sma = 50
+    short_sma = 50
+    long_sma = 200
     
     # creating a dataset for selected cryptocurrency 
     df = yf.download(x, start, end,interval = '1d')
@@ -131,6 +140,8 @@ def create_df(x):
     print(df.columns)
     print('============================================================')
     
+#    # write to csv
+#    df.to_csv(r"df.csv", index =  False)
     # =============================================================================
     # Assigning the target variable
     # =============================================================================
@@ -138,21 +149,34 @@ def create_df(x):
     
     y = pd.DataFrame(df['Close'], columns = ['Close'])
     y.sort_index(inplace = True)
-        # Creating a new variable, examining the difference for each observation
+    
+    # examining the pct_change
+    y['Close Percentage Change'] = y['Close'].pct_change(1)
+    
+    # Creating a new variable, examining the difference for each observation
     y['diff'] = y['Close'].diff()
 
     # logging the target varialbe due to great variance
     y['log_Close'] = np.log(y['Close'])
+    
     # Creating a new variable, examining the difference for each observation
     y['log_Close_diff'] = y['log_Close'].diff()
+    
+    y['Logged Close Percentage Change'] = y['log_Close'].pct_change(1)
 
     # logging the target varialbe due to great variance
     y['sqrt_Close'] = np.sqrt(y['Close'])
+    
+    y['Square Root Close Percentage Change'] = y['sqrt_Close'].pct_change(1)
+    
     # Creating a new variable, examining the difference for each observation
     y['sqrt_Close_diff'] = y['sqrt_Close'].diff()
     
     # dropping the first na (because there is no difference)
     y = y.dropna()
+    
+#    # write to csv
+#    y.to_csv(r"y.csv", index =  False)
 
     print('============================================================')
     print(crypto_name, '- Target Variable')
@@ -166,14 +190,14 @@ def create_df(x):
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-def create_graphs():
+def create_graphs(x):
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True,  subplot_titles=[
             'Price and Moving Averages of {}'.format(str(crypto_name)),
             'Volume of {}'.format(str(crypto_name))])
     # Lineplots of price and moving averages
     fig.add_trace(go.Scatter(
                             x = df.index,
-                            y = df['Close'],
+                            y = x,
                             name = crypto_name, 
                             mode='lines',
                             customdata = df['Name'], 
@@ -321,6 +345,54 @@ def create_hist_and_box(data):
     fig.update_layout(title = 'Plots of {} price'.format(crypto_name))
     fig.update_xaxes(tickprefix = '$', tickformat = ',.')
     fig.show()
+    
+
+# creating graph for Close Percentage Change
+def create_hist_and_box_pct_change():
+    fig = make_subplots(rows=2, cols=1,
+                        subplot_titles=['Histogram of {} 1-Day Close Percentage Change'.format(crypto_name),
+                                        'Box plot of {} 1-Day Close Percentage Change'.format(crypto_name)],
+                        x_title = '1-Day Close Percentage Change')
+    # 1.Histogram
+    fig.add_trace(go.Histogram(x = y['Close Percentage Change'], name = 'Histogram', nbinsx = round(len(df) / 20),
+                               ), row=1, col=1)
+    
+    #2. Boxplot 
+    fig.add_trace(go.Box(x = y['Close Percentage Change'], name = 'Boxplot',
+                         customdata = df['Name'],
+                         hovertemplate="<b>%{customdata}</b><br><br>" +
+                                            "1-Day Percentage Change: %{x:.0%}<br>"+
+                                    "<extra></extra>"), row=2, col=1)
+
+    fig.update_layout(title = 'Plots of 1-Day Close Percentage Change for {}'.format(crypto_name))
+    fig['layout']['yaxis1']['title'] = '# of Observations'
+    fig.update_xaxes(tickformat = '.0%', row = 1, col = 1)
+    fig.update_xaxes(tickformat = '.0%', row = 2, col = 1)
+    fig.show()
+    
+    
+
+def logged_create_hist_and_box_pct_change():
+    fig = make_subplots(rows=2, cols=1,
+                        subplot_titles=['Logged Closing Price - Histogram of {} 1-Day Close Percentage Change'.format(crypto_name),
+                                        'Logged Closing Price - Box plot of {} 1-Day Close Percentage Change'.format(crypto_name)],
+                        x_title = 'Loogged Price -  1-Day Close Percentage Change')
+    # 1.Histogram
+    fig.add_trace(go.Histogram(x = y['Logged Close Percentage Change'], name = 'Histogram', nbinsx = round(len(df) / 20),
+                               ), row=1, col=1)
+    
+    #2. Boxplot 
+    fig.add_trace(go.Box(x = y['Logged Close Percentage Change'], name = 'Boxplot',
+                         customdata = df['Name'],
+                         hovertemplate="<b>%{customdata}</b><br><br>" +
+                                            "1-Day Percentage Change: %{x:.0%}<br>"+
+                                    "<extra></extra>"), row=2, col=1)
+
+    fig.update_layout(title = 'Loogged Closing Price - Plots of 1-Day Close Percentage Change for {}'.format(crypto_name))
+    fig['layout']['yaxis1']['title'] = '# of Observations'
+    fig.update_xaxes(tickformat = '.0%', row = 1, col = 1)
+    fig.update_xaxes(tickformat = '.0%', row = 2, col = 1)
+    fig.show() 
 
 
 """
@@ -328,11 +400,10 @@ TO FIX
 - hovertemplate in boxplot and histogram
 """
 
-
 # =============================================================================
 # Decomposition
 # =============================================================================
-def decomposition_plot():
+def decomposition_plot(y):
     # Viewing the seasonal decompose of the target variable
     rcParams['figure.figsize'] = 18, 8
     decomposition = sm.tsa.seasonal_decompose(y.asfreq('MS'), model='multiplicative')
