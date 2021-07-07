@@ -95,5 +95,16 @@ Went well.
 - Happy to use Github as version control for my project.
 
 
+## 7th July
+##### Sidebar
+Got the yahoo Finance to display in the sidebar after placing it in the views and making a table out of it
+Also created a save button for the code
 
- 
+Took the whole day to fix these issues so I take this as a win!
+
+Needs to be done:
+- error if the ticket is not on the list
+- get the input to be saved and converted (?) to python so that it can be used to download the chosen cryptocurrency
+- create first graph in the dashboard
+
+
