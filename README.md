@@ -107,4 +107,13 @@ Needs to be done:
 - get the input to be saved and converted (?) to python so that it can be used to download the chosen cryptocurrency
 - create first graph in the dashboard
 
+## 10th July
+##### Button and Dataset
+- Got the button to save the response 
+- downloaded the dataset from Yahoo Finance.
+
+Needs to be done:
+- error if the ticket is not on the list
+- create first graph in the dashboard
+
 

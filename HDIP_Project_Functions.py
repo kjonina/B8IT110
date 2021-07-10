@@ -19,7 +19,6 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
 import mplfinance as mpf 
-import yfinance as yf
 import matplotlib.pyplot as plt
 import datetime as dt
 from matplotlib import pyplot
@@ -47,14 +46,14 @@ pio.renderers.default = 'browser'
 df_cryptolist = pd.read_csv('df_cryptolist.csv')
 
 # read the CSV file
-df = pd.read_csv('df.csv')
-
-# read the CSV file
-y = pd.read_csv('y.csv')
-
-crypto_name = 'Bitcoin'
-
-insert = 'BTC-USD'
+#df = pd.read_csv('df.csv')
+#
+## read the CSV file
+#y = pd.read_csv('y.csv')
+#
+#crypto_name = 'Bitcoin'
+#
+#insert = 'BTC-USD'
 
 # =============================================================================
 # getting a list from the table
@@ -190,14 +189,14 @@ def create_df_for_crypto(x):
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-def create_graphs(x):
+def create_graphs():
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True,  subplot_titles=[
             'Price and Moving Averages of {}'.format(str(crypto_name)),
             'Volume of {}'.format(str(crypto_name))])
     # Lineplots of price and moving averages
     fig.add_trace(go.Scatter(
                             x = df.index,
-                            y = x,
+                            y = df['Close'],
                             name = crypto_name, 
                             mode='lines',
                             customdata = df['Name'], 

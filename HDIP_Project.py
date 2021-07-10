@@ -81,7 +81,7 @@ from HDIP_Project_Functions import *
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-create_graphs(df['Close'])
+create_graphs()
 
 create_candlestick()
 
@@ -90,67 +90,67 @@ create_candlestick()
 # =============================================================================
 #create_hist_and_box(y['close_pct_change'])
 
-create_hist_and_box_pct_change()
-
-logged_create_hist_and_box_pct_change()
-
-
-
-# =============================================================================
-# Decomposition
-# =============================================================================
-#decomposition_plot()
-
-# =============================================================================
-# Dickey-Fuller Test
-# =============================================================================
-#adfuller_test(df['Close'])
-
-# =============================================================================
-# Creating a plot with analysis and rolling mean and standard deviation
-# =============================================================================
-test_stationarity(y['Close'])
-
-
-test_stationarity(y['Close Percentage Change'])
-
-#test_stationarity(y['diff'])
-
-#test_stationarity(y['log_Close'])
+#create_hist_and_box_pct_change()
 #
-#test_stationarity(y['sqrt_Close'])
-
-# =============================================================================
-# ACF and PACF plots
-# =============================================================================
-
-
-# =============================================================================
-# Exploring the difference
-# =============================================================================    
-#plotting the graph for ['diff'] variable
-diff_plot(y['diff'])
-
-create_diff_volume(y['diff'])
-
-# checking the adfuller of the ['diff'] variable
-#adfuller_test(y['diff'])
-
-# =============================================================================
-# Exploring the logged data
-# =============================================================================
-# creating a graph with histogram and lineplot of logged data
-log_create_hist_and_line(y['log_Close'])
-
-# creating an analysis and adfuller-dickey test
-#test_stationarity(y['log_Close'])
-
-
-# =============================================================================
-# Splitting the data in Training and Test Data
-# =============================================================================
-# splitting the data 
-create_train_and_test()
-
-# creating a plot for the training and test set
-training_and_test_plot()
+#logged_create_hist_and_box_pct_change()
+#
+#
+#
+## =============================================================================
+## Decomposition
+## =============================================================================
+##decomposition_plot()
+#
+## =============================================================================
+## Dickey-Fuller Test
+## =============================================================================
+##adfuller_test(df['Close'])
+#
+## =============================================================================
+## Creating a plot with analysis and rolling mean and standard deviation
+## =============================================================================
+#test_stationarity(y['Close'])
+#
+#
+#test_stationarity(y['Close Percentage Change'])
+#
+##test_stationarity(y['diff'])
+#
+##test_stationarity(y['log_Close'])
+##
+##test_stationarity(y['sqrt_Close'])
+#
+## =============================================================================
+## ACF and PACF plots
+## =============================================================================
+#
+#
+## =============================================================================
+## Exploring the difference
+## =============================================================================    
+##plotting the graph for ['diff'] variable
+#diff_plot(y['diff'])
+#
+#create_diff_volume(y['diff'])
+#
+## checking the adfuller of the ['diff'] variable
+##adfuller_test(y['diff'])
+#
+## =============================================================================
+## Exploring the logged data
+## =============================================================================
+## creating a graph with histogram and lineplot of logged data
+#log_create_hist_and_line(y['log_Close'])
+#
+## creating an analysis and adfuller-dickey test
+##test_stationarity(y['log_Close'])
+#
+#
+## =============================================================================
+## Splitting the data in Training and Test Data
+## =============================================================================
+## splitting the data 
+#create_train_and_test()
+#
+## creating a plot for the training and test set
+#training_and_test_plot()
