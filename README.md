@@ -121,7 +121,7 @@ Needs to be done:
 ##### First Graph online
 - Got the graphs displayed in Dashboard!!!!!
 
-![price_sma_volume_chart .png](https://github.com/kjonina/B8IT110/blob/main/price_sma_volume_chart.PNG)
+![price_sma_volume_chart.png](https://github.com/kjonina/B8IT110/blob/main/price_sma_volume_chart.PNG)
 
 -	The function uses ‘df’ and will automatically update. However, at the moment, the users input and the function to create ‘df’ are not linked. Also update hover templates. 
 
