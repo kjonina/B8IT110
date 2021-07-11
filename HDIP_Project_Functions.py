@@ -126,6 +126,10 @@ def create_df(x):
     print(crypto_name, 'Full Dataset - Column Names')
     print(df.columns)
     print('============================================================')
+
+
+#    # write to csv
+    df.to_csv(r"df.csv", index =  True)
     
     # =============================================================================
     # Assigning the target variable
@@ -165,8 +169,7 @@ def create_y(x):
     # dropping the first na (because there is no difference)
     y = y.dropna()
 
-#    # write to csv
-#    df.to_csv(r"df.csv", index =  False)
+
 
 #    # write to csv
 #    y.to_csv(r"y.csv", index =  False)
