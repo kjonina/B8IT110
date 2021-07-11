@@ -58,7 +58,7 @@ def get_pattern(soup):
     json_data = json.loads(script_data[start:-12])
 
     # examining the columns
-    columns_json = json_data['context']['dispatcher']['stores']['ScreenerResultsStore']['results']['columns']
+#    columns_json = json_data['context']['dispatcher']['stores']['ScreenerResultsStore']['results']['columns']
     # Checking that it works
 #    print('=====================================')
 #    print('Columns\' Names')

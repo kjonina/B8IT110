@@ -11,27 +11,25 @@ File:           This file is for functions to run the
 
 # Downloading necessary files
 import numpy as np
-# from numpy import log
 import pandas as pd
 import yfinance as yf
 import plotly.graph_objs as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
+import seaborn as sns
 import mplfinance as mpf 
 import matplotlib.pyplot as plt
 import datetime as dt
 from matplotlib import pyplot
 import datetime
 from datetime import datetime
-
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.graphics.tsaplots import plot_pacf
 from statsmodels.tsa.stattools import pacf
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.arima_model import ARMA
 import plotly.graph_objects as go
-
 import statsmodels.api as sm
 from pylab import rcParams
 
@@ -44,16 +42,6 @@ pio.renderers.default = 'browser'
 # =============================================================================
 # read the CSV file
 df_cryptolist = pd.read_csv('df_cryptolist.csv')
-
-# read the CSV file
-#df = pd.read_csv('df.csv')
-#
-## read the CSV file
-#y = pd.read_csv('y.csv')
-#
-#crypto_name = 'Bitcoin'
-#
-#insert = 'BTC-USD'
 
 # =============================================================================
 # getting a list from the table
@@ -111,7 +99,7 @@ def please_choose_crypto():
 # =============================================================================
 # Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
 # =============================================================================
-def create_df_for_crypto(x):
+def create_df(x):
 
     # =============================================================================
     # Creating a new dataset
@@ -139,12 +127,15 @@ def create_df_for_crypto(x):
     print(df.columns)
     print('============================================================')
     
-#    # write to csv
-#    df.to_csv(r"df.csv", index =  False)
     # =============================================================================
     # Assigning the target variable
     # =============================================================================
+    
+    
+def create_y(x):
+    
     global y
+    
     
     y = pd.DataFrame(df['Close'], columns = ['Close'])
     y.sort_index(inplace = True)
@@ -173,7 +164,10 @@ def create_df_for_crypto(x):
     
     # dropping the first na (because there is no difference)
     y = y.dropna()
-    
+
+#    # write to csv
+#    df.to_csv(r"df.csv", index =  False)
+
 #    # write to csv
 #    y.to_csv(r"y.csv", index =  False)
 
@@ -190,7 +184,7 @@ def create_df_for_crypto(x):
 # Creating a graph examining the price and moving averages
 # =============================================================================
 def create_graphs():
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True,  subplot_titles=[
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=[
             'Price and Moving Averages of {}'.format(str(crypto_name)),
             'Volume of {}'.format(str(crypto_name))])
     # Lineplots of price and moving averages
@@ -199,8 +193,9 @@ def create_graphs():
                             y = df['Close'],
                             name = crypto_name, 
                             mode='lines',
-                            customdata = df['Name'], 
+                            
                             # corrects hovertemplate labels!
+                            customdata = df['Name'], 
                             hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "Date: %{x|%d %b %Y} <br>" +
                                             "Closing Price: %{y:$,.2f}<br>" +
@@ -209,7 +204,10 @@ def create_graphs():
     fig.add_trace(go.Scatter(x = df.index,
                              y = df['short_SMA'],
                              name = 'Short SMA',
-                             mode = 'lines', customdata = df['Name'], 
+                             mode = 'lines', 
+                             
+                             # corrects hovertemplate labels!
+                             customdata = df['Name'], 
                              hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "Date: %{x|%d %b %Y} <br>" +
                                             "Short Moving Average Price: %{y:$,.2f}<br>" +
@@ -218,7 +216,10 @@ def create_graphs():
     fig.add_trace(go.Scatter(x = df.index,
                              y = df['long_SMA'],
                              name = 'Long SMA',
-                             mode = 'lines',customdata = df['Name'], 
+                             mode = 'lines',
+                             
+                             # corrects hovertemplate labels!
+                             customdata = df['Name'], 
                              hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "Date: %{x|%d %b %Y} <br>" +
                                             "Long Moving Average Price: %{y:$,.2f}<br>"+
@@ -228,6 +229,7 @@ def create_graphs():
     fig.add_trace(go.Bar(x = df.index,
                     y = df['Volume'],
                     name = 'Volume',
+                    
                     # corrects hovertemplate labels!
                     customdata = df['Name'],  
                     hovertemplate="<b>%{customdata}</b><br><br>" +
@@ -663,6 +665,7 @@ def create_train_and_test():
     global df_test
     # Train data - 80%
     df_train = y[:int(0.80*(len(df)))]
+    
     print('============================================================')
     print('{} Training Set'.format(crypto_name))
     print('============================================================')
@@ -680,7 +683,7 @@ def create_train_and_test():
 def training_and_test_plot(): 
     # creating a plotly graph for training and test set
     trace1 = go.Scatter(
-        x = df_train.index,
+        x = df_train['Date'],
         y = df_train['Close'],
         customdata = df['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
@@ -690,7 +693,7 @@ def training_and_test_plot():
         name = 'Training Set')
     
     trace2 = go.Scatter(
-        x = df_test.index,
+        x = df_test['Date'],
         y = df_test['Close'],
         name = 'Test Set',
         customdata = df['Name'],

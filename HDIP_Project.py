@@ -22,7 +22,6 @@ import datetime as dt
 from matplotlib import pyplot
 import datetime
 from datetime import datetime
-
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.graphics.tsaplots import plot_pacf
 from statsmodels.tsa.stattools import pacf
@@ -45,7 +44,7 @@ pio.renderers.default = 'browser'
 # Scraping the Top 25 Cryptocurrencies off Yahoo Finance
 # =============================================================================
 
-#from HDIP_Project_Scaping_JSON import *
+#from HDIP_Project_Scraping_JSON import *
 #
 ## Run live Website
 #def main():
@@ -74,7 +73,9 @@ from HDIP_Project_Functions import crypto_name, insert
 # =============================================================================
 # Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
 # =============================================================================
-create_df_for_crypto(insert)
+create_df(insert)
+
+create_y(insert)
 
 from HDIP_Project_Functions import *
 
@@ -88,14 +89,14 @@ create_candlestick()
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
 # =============================================================================
-#create_hist_and_box(y['close_pct_change'])
+create_hist_and_box(y['Close'])
 
-#create_hist_and_box_pct_change()
-#
-#logged_create_hist_and_box_pct_change()
-#
-#
-#
+create_hist_and_box_pct_change()
+
+logged_create_hist_and_box_pct_change()
+
+
+
 ## =============================================================================
 ## Decomposition
 ## =============================================================================
@@ -144,8 +145,8 @@ create_candlestick()
 #
 ## creating an analysis and adfuller-dickey test
 ##test_stationarity(y['log_Close'])
-#
-#
+
+
 ## =============================================================================
 ## Splitting the data in Training and Test Data
 ## =============================================================================
