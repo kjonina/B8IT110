@@ -186,7 +186,7 @@ def create_y(x):
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-def create_graphs():
+def price_sma_volume_chart():
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=[
             'Price and Moving Averages of {}'.format(str(crypto_name)),
             'Volume of {}'.format(str(crypto_name))])

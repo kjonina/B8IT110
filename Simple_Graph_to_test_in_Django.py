@@ -23,15 +23,15 @@ pio.renderers.default = 'browser'
 
 df = pd.read_csv('df.csv')
 
-## used this code to get the arrays
-## Closing price in the last 50 days
-#np.array(df['Close'].head(50))
-#
-## Date for the last 50 days
-#np.array(df['Date'].head(50))
-#
-## Volume for the last 50 days
-#np.array(df['Volume'].head(50))
+# used this code to get the arrays
+# Closing price in the last 50 days
+np.array(df['Close'].head(50))
+
+# Date for the last 50 days
+np.array(df['Date'].head(50))
+
+# Volume for the last 50 days
+np.array(df['Volume'].head(50))
 
 #https://stackoverflow.com/questions/36846395/embedding-a-plotly-chart-in-a-django-template
 # the graph needs formatting

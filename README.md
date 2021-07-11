@@ -119,13 +119,11 @@ Needs to be done:
 
 ## 11th July
 ##### First Graph online
-- After creating a really simple plotly graph and checking it (‘Simple_Graph_to_test_in_Django.py’) in Spyder to ensure that the code works and produces a graph.
+- Got the graphs displayed in Dashboard!!!!!
 
-![simple_graph.png](https://github.com/kjonina/B8IT110/blob/main/simple_graph.PNG)
+![price_sma_volume_chart .png](https://github.com/kjonina/B8IT110/blob/main/price_sma_volume_chart.PNG)
 
-However, this graph has the close, dates and the volumes all as an array within the function so it will not update. 
-The aim of this exercise was to get a plotly graph online and publishing online. Need to link it to the dataset created in other functions!
-
+-	The function uses ‘df’ and will automatically update. However, at the moment, the users input and the function to create ‘df’ are not linked. Also update hover templates. 
 
 
 

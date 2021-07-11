@@ -82,9 +82,9 @@ from HDIP_Project_Functions import *
 # =============================================================================
 # Creating a graph examining the price and moving averages
 # =============================================================================
-create_graphs()
+price_sma_volume_chart()
 
-create_candlestick()
+candle_stick()
 
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
@@ -110,7 +110,7 @@ logged_create_hist_and_box_pct_change()
 ## =============================================================================
 ## Creating a plot with analysis and rolling mean and standard deviation
 ## =============================================================================
-#test_stationarity(y['Close'])
+test_stationarity(y['Close'])
 #
 #
 #test_stationarity(y['Close Percentage Change'])
@@ -147,11 +147,11 @@ logged_create_hist_and_box_pct_change()
 ##test_stationarity(y['log_Close'])
 
 
-## =============================================================================
-## Splitting the data in Training and Test Data
-## =============================================================================
-## splitting the data 
-#create_train_and_test()
-#
-## creating a plot for the training and test set
-#training_and_test_plot()
+# =============================================================================
+# Splitting the data in Training and Test Data
+# =============================================================================
+# splitting the data 
+create_train_and_test()
+
+# creating a plot for the training and test set
+training_and_test_plot()
