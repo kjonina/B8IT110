@@ -125,5 +125,13 @@ Needs to be done:
 
 -	The function uses ‘df’ and will automatically update. However, at the moment, the users input and the function to create ‘df’ are not linked. Also update hover templates. 
 
+## 12th July
+##### jQuery
+- different graphs are displaced based on which button the user clicks
+
+Needs to be done:
+- Connect the input to creation of df
+- remove graphs until the user has clicked a button
+
 
 
