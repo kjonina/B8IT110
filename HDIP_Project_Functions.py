@@ -270,7 +270,7 @@ def price_sma_volume_chart():
 
 
 
-def create_candlestick():
+def candle_stick():
     fig = go.Figure()
     
 #    hovertext=[]
@@ -358,7 +358,7 @@ def create_hist_and_box_pct_change():
                                         'Box plot of {} 1-Day Close Percentage Change'.format(crypto_name)],
                         x_title = '1-Day Close Percentage Change')
     # 1.Histogram
-    fig.add_trace(go.Histogram(x = y['Close Percentage Change'], name = 'Histogram', nbinsx = round(len(df) / 20),
+    fig.add_trace(go.Histogram(x = y['Close Percentage Change'], name = 'Histogram', nbinsx = round(len(y) / 20),
                                ), row=1, col=1)
     
     #2. Boxplot 
