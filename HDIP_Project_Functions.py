@@ -27,7 +27,7 @@ from datetime import datetime
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.graphics.tsaplots import plot_pacf
 from statsmodels.tsa.stattools import pacf
-from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.stattools import kpss, adfuller
 from statsmodels.tsa.arima_model import ARMA
 import plotly.graph_objects as go
 import statsmodels.api as sm
@@ -143,6 +143,7 @@ def create_y(x):
     
     y = pd.DataFrame(df['Close'], columns = ['Close'])
     y.sort_index(inplace = True)
+    y['Name'] = crypto_name
     
     # examining the pct_change
     y['Close Percentage Change'] = y['Close'].pct_change(1)
@@ -363,7 +364,7 @@ def create_hist_and_box_pct_change():
     
     #2. Boxplot 
     fig.add_trace(go.Box(x = y['Close Percentage Change'], name = 'Boxplot',
-                         customdata = df['Name'],
+                         customdata = y['Name'],
                          hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "1-Day Percentage Change: %{x:.0%}<br>"+
                                     "<extra></extra>"), row=2, col=1)
@@ -427,6 +428,20 @@ def adfuller_test(data):
     print('Results of Dickey-Fuller Test for {}:'.format(crypto_name))
     print('============================================================')
     print (dfoutput)
+    
+
+# KPSS Test
+def KPSS_test(data):
+    result = kpss(data.values, regression='c', lags='auto')
+    print('============================================================')
+    print('Results of KPSS Test for {}:'.format(crypto_name))
+    print('============================================================')
+    print('\nKPSS Statistic: %f' % result[0])
+    print('p-value: %f' % result[1])
+    for key, value in result[3].items():
+        print('Critial Values:')
+        print(f'   {key}, {value}')
+    
 
 # =============================================================================
 # Creating a plot with analysis and rolling mean and standard deviation

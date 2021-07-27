@@ -89,7 +89,8 @@ candle_stick()
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
 # =============================================================================
-create_hist_and_box(y['Close'])
+## completely useless graph!!
+#create_hist_and_box(y['Close'])
 
 create_hist_and_box_pct_change()
 
@@ -105,16 +106,16 @@ logged_create_hist_and_box_pct_change()
 ## =============================================================================
 ## Dickey-Fuller Test
 ## =============================================================================
-##adfuller_test(df['Close'])
-#
-## =============================================================================
-## Creating a plot with analysis and rolling mean and standard deviation
-## =============================================================================
+adfuller_test(df['Close'])
+
+# =============================================================================
+# Creating a plot with analysis and rolling mean and standard deviation
+# =============================================================================
 test_stationarity(y['Close'])
-#
-#
-#test_stationarity(y['Close Percentage Change'])
-#
+
+
+test_stationarity(y['Close Percentage Change'])
+
 ##test_stationarity(y['diff'])
 #
 ##test_stationarity(y['log_Close'])

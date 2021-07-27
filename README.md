@@ -134,4 +134,20 @@ Needs to be done:
 - remove graphs until the user has clicked a button
 
 
+## 25th July
+- behind schedule but all good. 
+##### Tableau Dashboard
+- Got Tableau Dashboard displayed in Django, which I think is pretty cool
+
+##### Issues Resolved
+- made the input into a string
+- made if else statement to check that the user has submitted correct ticker
+- made only the table show up with display:block/none  and let javascript take care of the rest
+
+##### New Issues 
+- I believe settings.py is in Github which is not... good. 
+- must check with the tutorial, how that was resolved....
+
+
+
 

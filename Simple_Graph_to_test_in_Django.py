@@ -23,6 +23,7 @@ pio.renderers.default = 'browser'
 
 df = pd.read_csv('df.csv')
 
+
 # used this code to get the arrays
 # Closing price in the last 50 days
 np.array(df['Close'].head(50))
