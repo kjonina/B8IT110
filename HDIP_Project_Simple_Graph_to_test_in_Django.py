@@ -1,4 +1,13 @@
 
+"""
+Student:        Karina Jonina - 10543032
+Module:         B8IT110
+Module Name:    HDIP PROJECT
+
+Task:           Time Series Forecasting of Cryptocurrency
+
+Aim:            This file was used to create a very simple graph and to print it in Django
+"""
 
 # Downloading necessary files
 import numpy as np

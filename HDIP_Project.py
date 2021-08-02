@@ -39,25 +39,6 @@ from HDIP_Project_Functions import *
 # display plotly in browser when run in Spyder
 pio.renderers.default = 'browser'
 
-
-# =============================================================================
-# Scraping the Top 25 Cryptocurrencies off Yahoo Finance
-# =============================================================================
-
-#from HDIP_Project_Scraping_JSON import *
-#
-## Run live Website
-#def main():
-#    global df_cryptolist
-#    contents = get_page_contents()
-#    soup = convert_to_soup(contents)
-#    get_title(soup)
-#    get_pattern(soup)
-#    print(df_cryptolist.head(1).transpose())
-#    
-#if __name__ == '__main__':
-#    main()   
-
 # =============================================================================
 # creating a list from the crypto-table
 # =============================================================================      
@@ -84,7 +65,7 @@ from HDIP_Project_Functions import *
 # =============================================================================
 price_sma_volume_chart()
 
-candle_stick()
+candlestick_moving_average()
 
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
@@ -111,7 +92,7 @@ adfuller_test(df['Close'])
 # =============================================================================
 # Creating a plot with analysis and rolling mean and standard deviation
 # =============================================================================
-test_stationarity(y['Close'])
+test_stationarity(df['Close'])
 
 
 test_stationarity(y['Close Percentage Change'])

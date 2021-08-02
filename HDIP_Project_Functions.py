@@ -115,8 +115,21 @@ def create_df(x):
     # creating a dataset for selected cryptocurrency 
     df = yf.download(x, start, end,interval = '1d')
     df = pd.DataFrame(df.dropna(), columns = ['Open', 'High','Low','Close', 'Adj Close', 'Volume'])
+
+    # Create short SMA
     df['short_SMA'] = df.iloc[:,1].rolling(window = short_sma).mean()
+    
+    # Create Long SMA
     df['long_SMA'] = df.iloc[:,1].rolling(window = long_sma).mean()
+    
+    # Create daily_return
+    df['daily_return'] = df['Close'].pct_change(periods=1).mul(100)
+    
+    # Create monthly_return
+    df['monthly_return'] = df['Close'].pct_change(periods=30).mul(100)
+    
+    # Create annual_return
+    df['annual_return'] = df['Close'].pct_change(periods=365).mul(100)
     df['Name'] = crypto_name
     print('============================================================')
     print(crypto_name, '- Full Dataset')
@@ -126,7 +139,14 @@ def create_df(x):
     print(crypto_name, 'Full Dataset - Column Names')
     print(df.columns)
     print('============================================================')
-
+    
+    # preparing data from time series analysis
+    # eliminating any NAs - in most cryptocurrencies there are 4 days missing
+    df.index = pd.to_datetime(df.index)
+    df = df.asfreq('D')
+    print('Nan in each columns' , df.isna().sum())
+    df = df.ffill()
+    print('Nan in each columns' , df.isna().sum())
 
 #    # write to csv
     df.to_csv(r"df.csv", index =  True)
@@ -134,12 +154,11 @@ def create_df(x):
     # =============================================================================
     # Assigning the target variable
     # =============================================================================
-    
+
     
 def create_y(x):
     
     global y
-    
     
     y = pd.DataFrame(df['Close'], columns = ['Close'])
     y.sort_index(inplace = True)
@@ -169,11 +188,10 @@ def create_y(x):
     
     # dropping the first na (because there is no difference)
     y = y.dropna()
-
-
+    
 
 #    # write to csv
-#    y.to_csv(r"y.csv", index =  False)
+    y.to_csv(r"y.csv", index =  False)
 
     print('============================================================')
     print(crypto_name, '- Target Variable')
@@ -266,62 +284,119 @@ def price_sma_volume_chart():
 
     #Show
     fig.show()
-#    #writing the graph to html 
-#    fig.write_html('first_figure.html', auto_open=True, include_plotlyjs = 'cdn')
 
 
 
-def candle_stick():
-    fig = go.Figure()
+def candlestick_moving_average():
+
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=[
+            'Price and Moving Averages of {}'.format(str(crypto_name)),
+            'Volume of {}'.format(str(crypto_name))])
+
+    trace1 = go.Candlestick(
+        x = df.index,
+        open = df["Open"],
+        high = df["High"],
+        low = df["Low"],
+        close = df["Close"],
+        name = crypto_name)
+
+    data = [trace1]
+
+    for i in range(5, 201, 5):
+
+        sma = go.Scatter(
+            x = df.index,
+            y = df["Close"].rolling(i).mean(), # Pandas SMA
+            name = "SMA" + str(i),
+            line = dict(color = "#3E86AB"),
+            customdata = df['Name'],
+            hovertemplate="<b>%{customdata}</b><br><br>" +
+                        "Date: %{x|%d %b %Y} <br>" +
+                        "Simple Moving Average Price: %{y:$,.2f}<br>",
+            opacity = 0.7,
+            visible = False,
+        )
+
+        data.append(sma)
+
+    sliders = dict(
+
+        # GENERAL
+        steps = [],
+        currentvalue = dict(
+            font = dict(size = 16),
+            prefix = "SMA: ",
+            xanchor = "left",
+        ),
+
+        x = 0.15,
+        y = 0,
+        len = 0.85,
+        pad = dict(t = 0, b = 0),
+        yanchor = "bottom",
+        xanchor = "left",
+    )
+
+    for i in range((200 // 5) + 1):
+
+        step = dict(
+            method = "restyle",
+            label = str(i * 5),
+            value = str(i * 5),
+            args = ["visible", [False] * ((200 // 5) + 1)],
+        )
+
+        step['args'][1][0] = True
+        step['args'][1][i] = True
+        sliders["steps"].append(step)
+
+
+
+    layout = dict(
+
+        title = 'Price of {}'.format(str(crypto_name)),
+
+        # ANIMATIONS
+        sliders = [sliders],
+        xaxis = dict(
+
+            rangeselector = dict(
+                activecolor = "#888888",
+                bgcolor = "#DDDDDD",
+                buttons = [
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD"),
+                ]
+            ),
+
+        ),
+        yaxis = dict(
+            tickprefix = "$",
+            type = "linear",
+            domain = [0.25, 1],
+        ),
+
+    )
+
+
+
+    fig = go.Figure(data = data, layout = layout)
     
-#    hovertext=[]
-#    for i in range(len(df.Open)):
-#        hovertext.append('Date: '+str(df.index[i])+
-#                        '<br>Open: '+str(df.Open[i])+
-#                        '<br>High: '+str(df.High[i])+
-#                        '<br>Low: '+str(df.Open[i])+
-#                         '<br>Close: '+str(df.Close[i]))
-
-
-    # Candlestick
-    fig.add_trace(go.Candlestick(x = df.index,
-                    open = df['Open'],
-                    high = df['High'],
-                    low = df['Low'],
-                    close = df['Close'],
-#                    text=hovertext,
-#                    hoverinfo='text',
-                    name = 'market data'))
-
-    # Add titles
-    fig.update_layout( 
-            title = 'Price of {}'.format(str(crypto_name)))
-    fig['layout']['yaxis']['title']='US Dollars'
-    
-    # X-Axes
-    fig.update_xaxes(
-        rangeslider_visible = True,
-        rangeselector = dict(
-            buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
-    fig.update_layout(xaxis_rangeslider_visible = False)
-    fig.update_yaxes(tickprefix = '$', tickformat = ',.')
     #Show
     fig.show()
-#    #writing the graph to html 
-#    fig.write_html('first_figure.html', auto_open=True, include_plotlyjs = 'cdn')
+
 
 """
 TO FIX
-- fix hovertemplate for Candlestick
-- create a slider for short and long SMA
+- fix hovertemplate for CandlestickMA
 """
 
 
@@ -335,7 +410,7 @@ def create_hist_and_box(data):
                                         'Box plot of {} price'.format(crypto_name)],
                         x_title = 'US Dollars')
     # 1.Histogram
-    fig.add_trace(go.Histogram(x = data, name = 'Histogram', nbinsx = round(len(df) / 20),
+    fig.add_trace(go.Histogram(x = data, name = 'Histogram', nbinsx = round(len(data) / 20),
 #                               customdata = df['Name'],
 #                               hovertemplate="<b>%{customdata}</b>"
                                ), row=1, col=1)
@@ -411,7 +486,7 @@ TO FIX
 def decomposition_plot(y):
     # Viewing the seasonal decompose of the target variable
     rcParams['figure.figsize'] = 18, 8
-    decomposition = sm.tsa.seasonal_decompose(y.asfreq('MS'), model='multiplicative')
+    decomposition = sm.tsa.seasonal_decompose(y.asfreq('D'), model='multiplicative')
     fig = decomposition.plot()
     plt.show()
 
@@ -490,17 +565,6 @@ def test_stationarity(timeseries):
             yaxis_tickprefix = '$', yaxis_tickformat = ',.')
     #Show
     fig.show()
-    
-    #Perform Dickey-Fuller test:
-    dftest = adfuller(timeseries, autolag = 'AIC')
-    dfoutput = pd.Series(dftest[0:4], 
-                         index = ['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key, value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print('============================================================')
-    print ('Results of Dickey-Fuller Test for {}: '.format(crypto_name))
-    print('============================================================')
-    print (dfoutput)
 
 # =============================================================================
 # ACF and PACF plots
@@ -641,6 +705,93 @@ TO FIX
 - hovertemplate in boxplot and histogram
 """
 
+# =============================================================================
+#  daily, monthly, annual returns
+# =============================================================================
+
+def returns():
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=[
+            'Closing Price of {}'.format(str(crypto_name)),
+            'Daily Return of {}'.format(str(crypto_name)),
+            'Monthly Return of {}'.format(str(crypto_name)),
+            'Annual Return of {}'.format(str(crypto_name))])
+    fig.add_trace(go.Scatter(
+                            x = df.index,
+                            y = df['Close'],
+                            mode='lines',
+                            customdata = df['Name'], name = 'Closing Price',
+                            hovertemplate="<b>%{customdata}</b><br><br>" +
+                                            "Date: %{x|%d %b %Y} <br>" +
+                                            "Closing Price: %{y:$,.2f}<br>"+
+                                            "<extra></extra>"), row = 1, col = 1)
+
+    fig.add_trace(go.Scatter(
+                            x = df.index,
+                            y = df['daily_return'], 
+                            mode='lines',
+                            customdata = df['Name'], name = 'Daily Return',
+                            hovertemplate="<b>%{customdata}</b><br><br>" +
+                                            "Date: %{x|%d %b %Y} <br>" +
+                                            "Daily Return: %{y:,.0%}<br>"+
+                                            "<extra></extra>"), row = 2, col = 1)
+
+    fig.add_trace(go.Scatter(
+                            x = df.index,
+                            y = df['monthly_return'],
+                            mode='lines',
+                            customdata = df['Name'], name = 'Monthly Return',
+                            hovertemplate="<b>%{customdata}</b><br><br>" +
+                                            "Date: %{x|%d %b %Y} <br>" +
+                                            "Monthly Return: %{y:,.0%}<br>"+
+                                            "<extra></extra>"), row = 3, col = 1)
+    
+    fig.add_trace(go.Scatter(
+                            x = df.index,
+                            y = df['annual_return'],
+                            mode='lines',
+                            customdata = df['Name'], name = 'Annual Return',
+                            hovertemplate="<b>%{customdata}</b><br><br>" +
+                                            "Date: %{x|%d %b %Y} <br>" +
+                                            "Annual Return: %{y:,.0%}<br>"+
+                                            "<extra></extra>"), row = 4, col = 1)
+    
+    # Add titles
+    fig.update_layout( 
+            title = 'Price of {}'.format(str(crypto_name)))
+    fig['layout']['yaxis1']['title']='US Dollars'
+    fig['layout']['yaxis2']['title']='US Dollars'
+    fig['layout']['yaxis3']['title']='US Dollars'
+    fig['layout']['yaxis4']['title']='US Dollars'
+    # X-Axes
+    fig.update_xaxes(
+        rangeslider_visible = True,
+        rangeselector = dict(
+            buttons = list([
+                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
+                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
+                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
+                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
+                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
+                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
+                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
+                dict(step = "all")])))
+
+    fig.update_layout(xaxis_rangeslider_visible=False)
+    fig.update_xaxes(rangeslider= {'visible':False}, row=2, col=1)
+    fig.update_xaxes(rangeslider= {'visible':False}, row=3, col=1)
+    fig.update_xaxes(rangeslider= {'visible':False}, row=4, col=1)
+
+    fig.update_xaxes(rangeselector= {'visible':False}, row=2, col=1)
+    fig.update_xaxes(rangeselector= {'visible':False}, row=3, col=1)
+    fig.update_xaxes(rangeselector= {'visible':False}, row=4, col=1)    
+
+    fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
+    fig.update_yaxes(tickformat = ',.0%', row = 2, col = 1)
+    fig.update_yaxes(tickformat = ',.0%', row = 3, col = 1)
+    fig.update_yaxes(tickformat = ',.0%', row = 4, col = 1)
+
+    #Show
+    fig.show()
 
 # =============================================================================
 # Exploring the logged data
@@ -663,16 +814,6 @@ def log_create_hist_and_line(data):
 
     fig.show()
 
-# =============================================================================
-# ARIMA Models
-# =============================================================================
-
-
-
-#model = ARMA(y['diff'], order=(1,1))
-#results = model.fit()
-#
-#results.summary()
 
 
 # =============================================================================
@@ -682,7 +823,7 @@ def create_train_and_test():
     global df_train 
     global df_test
     # Train data - 80%
-    df_train = y[:int(0.80*(len(df)))]
+    df_train = y[:int(0.80*(len(y)))]
     
     print('============================================================')
     print('{} Training Set'.format(crypto_name))
@@ -690,7 +831,7 @@ def create_train_and_test():
     print(df_train.head())
     print('Training set has {} rows and {} columns.'.format(*df_train.shape))
     # Test data - 20%
-    df_test = y[int(0.80*(len(df))):]
+    df_test = y[int(0.80*(len(y))):]
     print('============================================================')
     print('{} Test Set'.format(crypto_name))
     print('============================================================')
@@ -701,7 +842,7 @@ def create_train_and_test():
 def training_and_test_plot(): 
     # creating a plotly graph for training and test set
     trace1 = go.Scatter(
-        x = df_train['Date'],
+        x = df_train.index,
         y = df_train['Close'],
         customdata = df['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
@@ -711,7 +852,7 @@ def training_and_test_plot():
         name = 'Training Set')
     
     trace2 = go.Scatter(
-        x = df_test['Date'],
+        x = df_test.index,
         y = df_test['Close'],
         name = 'Test Set',
         customdata = df['Name'],

@@ -149,5 +149,9 @@ Needs to be done:
 - must check with the tutorial, how that was resolved....
 
 
+## 2nd August 
+##### 
+- fixed other pages on the website
 
-
+##### Time Series Analysis
+- getting things d
