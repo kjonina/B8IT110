@@ -151,7 +151,10 @@ Needs to be done:
 
 ## 2nd August 
 ##### 
-- fixed other pages on the website
+- fixed other pages on the website going. Like how it looks
 
 ##### Time Series Analysis
-- getting things d
+- getting things done with Time Series Analysis.
+- Examining which one is the best for analysis
+
+
