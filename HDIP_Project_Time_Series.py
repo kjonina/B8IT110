@@ -841,12 +841,237 @@ run_AR_model_with_PLOTLY()
 
 
 
+from statsmodels.tsa.arima.model import ARIMA
+
+def ARIMA_forecasting_with_Close_PLOTLY():
+    
+    # Construct the model
+    #    mod = sm.tsa.SARIMAX(y[['Close']], order=(1, 0, 0), trend='c')
+    
+    mod =ARIMA(y['Close'], order=(6,1,3))
+    # Estimate the parameters
+    res = mod.fit()
+    print(res.summary())
+    
+    
+    # Forecasting out-of-sample
+    forecast = res.get_forecast(steps=120, dynamic = True)
+    
+    # Confidence level of 90%
+    print('============================================================')
+    print('Forecast')
+    print('============================================================')
+    print(forecast.summary_frame(alpha=0.10).tail())
+    
+    
+    fig, ax = plt.subplots(figsize=(15, 5))
+    
+    # Plot the data (here we are subsetting it to get a better look at the forecasts)
+    y[['Close']].iloc[0:].plot(ax=ax)
+    
+    # Construct the forecasts
+    fcast = res.get_forecast('2021-12-30').summary_frame()
+    fcast['mean'].plot(ax=ax, style='k--')
+    ax.fill_between(fcast.index, fcast['mean_ci_lower'], fcast['mean_ci_upper'], color='k', alpha=0.1);
+    plt.show()
+    
+    
+    
+    # a plotly graph for training and test set
+    trace1 = go.Scatter(
+        x = df.index,
+        y = df['Close'],
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>")
+    
+
+    
+    print(fcast.index)
+    y_upper = fcast['mean_ci_upper']
+    y_lower = fcast['mean_ci_lower']
+    
+    trace2 = go.Scatter(
+        x=y_upper.index,
+        y=y_upper, 
+        line = dict(color='green'),
+#        name = 'Predicted2',
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>")
+    
+
+    trace3 = go.Scatter(
+        x=y_upper.index,
+        y= y_lower,
+        line = dict(color='green'),
+#        name = 'Predicted Lower Confidence ',
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        fill='tonexty'
+        )
+
+
+    trace4 = go.Scatter(
+        x=fcast['mean_ci_upper'].index,
+        y=fcast['mean'],
+#        name = 'Predicted', 
+        line = dict(color='firebrick', width=4, dash='dot'),
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>")
+    
+    
+    
+    data = [trace1, trace2, trace3, trace4]
+    fig = go.Figure(data = data)
+    fig.update_layout(showlegend=False)
+    
+    fig.update_layout({'title': {'text':'ARIMA Forecasting of {}'.format(str(crypto_name))}},
+                      yaxis_tickprefix = '$', yaxis_tickformat = ',.')
+    fig.show()
+    
+    
+    
+#    print('============================================================')
+#    print('Plot Diagnostics')
+#    print('============================================================')
+#    res.plot_diagnostics()
+#    plt.show()
+
+
+
+
+ARIMA_forecasting_with_Close_PLOTLY()
 
 
 
 
 
 
+
+def ARIMA_forecasting_dftest_with_Close_PLOTLY():
+    # Instantiate the model
+    model =  ARIMA(df_train['Close'], order=(6,1,3))
+    
+    # Fit the model
+    results = model.fit()
+    
+    # Print summary
+    print(results.summary())
+    
+#    start_index = df_test.index.min()
+#    end_index = df_test.index.max()
+
+    
+    #Predictions
+    forecast = results.get_forecast(steps=219, dynamic = True)
+        
+    # Confidence level of 90%
+    fcast = forecast.summary_frame(alpha=0.10) 
+    print('============================================================')
+    print('Forecast')
+    print('============================================================')
+    print(fcast.tail())
+    
+    
+    
+    fig, ax = plt.subplots(figsize=(15, 5))
+    plt.plot(y.index, y['Close'], label='observed')
+    fcast['mean'].plot(ax=ax, style='k--')
+    ax.fill_between(fcast.index, fcast['mean_ci_lower'], fcast['mean_ci_upper'], color='k', alpha=0.1);
+    plt.xlabel('Date')
+    plt.ylabel('{} Stock Price - Close USD'.format(str(crypto_name)))
+    plt.legend()
+    plt.show()
+
+    
+    
+    
+    # a plotly graph for training and test set
+    trace1 = go.Scatter(
+        x = df.index,
+        y = df['Close'],
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>")
+
+    trace5 = go.Scatter(
+        x = df_test.index,
+        y = df_test['Close'],
+        name = 'Test Set',
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        yaxis="y1")
+
+    
+    print(fcast.index)
+    y_upper = fcast['mean_ci_upper']
+    y_lower = fcast['mean_ci_lower']
+    
+    trace2 = go.Scatter(
+        x=y_upper.index,
+        y=y_upper, 
+        line = dict(color='green'),
+#        name = 'Predicted2',
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>")
+    
+
+    trace3 = go.Scatter(
+        x=y_upper.index,
+        y= y_lower,
+        line = dict(color='green'),
+#        name = 'Predicted Lower Confidence ',
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        fill='tonexty'
+        )
+
+
+    trace4 = go.Scatter(
+        x=fcast['mean_ci_upper'].index,
+        y=fcast['mean'],
+#        name = 'Predicted', 
+        line = dict(color='firebrick', width=4, dash='dot'),
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>")
+    
+    
+    
+    data = [trace1, trace2, trace3, trace4, trace5]
+    fig = go.Figure(data = data)
+    fig.update_layout(showlegend=False)
+    
+    fig.update_layout({'title': {'text':'ARIMA Forecasting of {}'.format(str(crypto_name))}},
+                      yaxis_tickprefix = '$', yaxis_tickformat = ',.')
+    fig.show()
+
+
+ARIMA_forecasting_dftest_with_Close_PLOTLY()
 
 
 
