@@ -147,6 +147,7 @@ def create_df(x):
     print('Nan in each columns' , df.isna().sum())
     df = df.ffill()
     print('Nan in each columns' , df.isna().sum())
+    df = df.dropna()
 
 #    # write to csv
     df.to_csv(r"df.csv", index =  True)
@@ -191,7 +192,7 @@ def create_y(x):
     
 
 #    # write to csv
-    y.to_csv(r"y.csv", index =  False)
+    y.to_csv(r"y.csv", index =  True)
 
     print('============================================================')
     print(crypto_name, '- Target Variable')
