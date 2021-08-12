@@ -151,10 +151,17 @@ Needs to be done:
 
 ## 2nd August 
 ##### 
-- fixed other pages on the website going. Like how it looks
+- fixed other pages on the website going. 
 
 ##### Time Series Analysis
 - getting things done with Time Series Analysis.
 - Examining which one is the best for analysis
 
+## 12th August 
+##### Plotly graphs
+- fixing any graphs I am not fully happy about. 
+- fixing button names, fixing titles for sliders, removing redundant legends and sliders. 
+Nothing ground-breaking really. 
 
+##### Artefacts
+- fixing up HDIP_Project.py and HDIP_Project_Functions.py 

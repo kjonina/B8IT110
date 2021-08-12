@@ -276,13 +276,13 @@ warnings.filterwarnings('ignore', 'statsmodels.tsa.ar_model.AR', FutureWarning)
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, median_absolute_error, mean_squared_log_error
 
 def run_AR_model(data):
+    global predictions_ARIMA
     # AR fit model
     model = AR(data)
     results = model.fit()
 
     print (results.summary())
 
-    
     plt.plot(data)
     plt.plot(results.fittedvalues, color='red')
     plt.title('RSS: %.4f'% np.nansum((results.fittedvalues-data)**2))
@@ -344,10 +344,6 @@ def evaluate_forecast(y,pred):
 
 
 
-run_AR_model(y['log_Close_diff'])
-
-
-evaluate_forecast(y.Close, predictions_ARIMA).transpose()
 
 
 # =============================================================================
@@ -363,10 +359,8 @@ def run_ARIMA_model():
     # fit model
     model = ARIMA(y['log_Close_diff'], order=(4, 1, 4))
     results = model.fit()
-
     print (results.summary())
 
-    
     plt.plot(y['log_Close_diff'])
     plt.plot(results.fittedvalues, color='red')
     plt.title('RSS: %.4f'% np.nansum((results.fittedvalues-y['log_Close_diff'])**2))
@@ -410,7 +404,6 @@ def run_ARIMA_model():
     plt.show()
 
 
-run_ARIMA_model()
 
 
 
@@ -430,12 +423,8 @@ def ARIMA_forecasting_dftest_with_log_Close_diff():
     model_fit = model.fit()
     print(model_fit.summary())
     
-    
     start_index = df_test.index.min()
     end_index = df_test.index.max()
-    
-    
-
     
     #Predictions
     predictions = model_fit.predict(steps=219, dynamic = True)
@@ -488,7 +477,6 @@ def ARIMA_forecasting_dftest_with_log_Close_diff():
     plt.show()
 
 
-ARIMA_forecasting_dftest_with_log_Close_diff()
 # =============================================================================
 #  DATACAMP CODE
 # =============================================================================
@@ -541,24 +529,10 @@ def ARIMA_forecasting_dftest_with_Close():
     plt.show()
 
 
-ARIMA_forecasting_dftest_with_Close()
-
-
 """
 Maybr Try SAMIRAX with  exog = df['Volume']
 
 """
-
-
-
-
-
-
-
-
-
-
-
 
 # =============================================================================
 # FORECASTING!
@@ -606,14 +580,32 @@ def ARIMA_forecasting_with_Close():
     res.plot_diagnostics()
     plt.show()
 
-
-
-ARIMA_forecasting_with_Close()
-
 """ NOTES:
 Does not actually run on the log_Close_diff 
 So it does not have to be reconstructed after differencing and exponentional from log
 """
+
+
+# =============================================================================
+# Testing Models
+# =============================================================================
+
+
+run_AR_model(y['log_Close_diff'])
+
+evaluate_forecast(y.Close, predictions_ARIMA).transpose()
+
+
+#uses Log, does not unlog correctly
+run_ARIMA_model()
+
+ARIMA_forecasting_dftest_with_log_Close_diff()
+
+ARIMA_forecasting_dftest_with_Close()
+
+ARIMA_forecasting_with_Close()
+
+
 
 
 
@@ -864,29 +856,9 @@ def ARIMA_forecasting_with_Close_PLOTLY():
     print(forecast.summary_frame(alpha=0.10).tail())
     
     
-    fig, ax = plt.subplots(figsize=(15, 5))
-    
-    # Plot the data (here we are subsetting it to get a better look at the forecasts)
-    y[['Close']].iloc[0:].plot(ax=ax)
     
     # Construct the forecasts
     fcast = res.get_forecast('2021-12-30').summary_frame()
-    fcast['mean'].plot(ax=ax, style='k--')
-    ax.fill_between(fcast.index, fcast['mean_ci_lower'], fcast['mean_ci_upper'], color='k', alpha=0.1);
-    plt.show()
-    
-    
-    
-    # a plotly graph for training and test set
-    trace1 = go.Scatter(
-        x = df.index,
-        y = df['Close'],
-        customdata = df['Name'],
-        hovertemplate="<b>%{customdata}</b><br><br>" +
-        "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>")
-    
 
     
     print(fcast.index)

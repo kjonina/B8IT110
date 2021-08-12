@@ -131,26 +131,27 @@ def create_df(x):
     # Create annual_return
     df['annual_return'] = df['Close'].pct_change(periods=365).mul(100)
     df['Name'] = crypto_name
-    print('============================================================')
-    print(crypto_name, '- Full Dataset')
-    print('------------------------------------------------------------')
-    print(df.head())
-    print('------------------------------------------------------------')
-    print(crypto_name, 'Full Dataset - Column Names')
-    print(df.columns)
+#    print('============================================================')
+#    print(crypto_name, '- Full Dataset')
+#    print('------------------------------------------------------------')
+#    print(df.head())
+#    print('------------------------------------------------------------')
+#    print(crypto_name, 'Full Dataset - Column Names')
+#    print(df.columns)
     print('============================================================')
     
     # preparing data from time series analysis
     # eliminating any NAs - in most cryptocurrencies there are 4 days missing
     df.index = pd.to_datetime(df.index)
     df = df.asfreq('D')
+    print(crypto_name)
     print('Nan in each columns' , df.isna().sum())
-    df = df.ffill()
+    df = df.bfill()
     print('Nan in each columns' , df.isna().sum())
     df = df.dropna()
 
 #    # write to csv
-    df.to_csv(r"df.csv", index =  True)
+#    df.to_csv(r"df.csv", index =  True)
     
     # =============================================================================
     # Assigning the target variable
@@ -178,21 +179,13 @@ def create_y(x):
     y['log_Close_diff'] = y['log_Close'].diff()
     
     y['Logged Close Percentage Change'] = y['log_Close'].pct_change(1)
-
-    # logging the target varialbe due to great variance
-    y['sqrt_Close'] = np.sqrt(y['Close'])
-    
-    y['Square Root Close Percentage Change'] = y['sqrt_Close'].pct_change(1)
-    
-    # Creating a new variable, examining the difference for each observation
-    y['sqrt_Close_diff'] = y['sqrt_Close'].diff()
     
     # dropping the first na (because there is no difference)
     y = y.dropna()
     
 
 #    # write to csv
-    y.to_csv(r"y.csv", index =  True)
+#    y.to_csv(r"y.csv", index =  True)
 
     print('============================================================')
     print(crypto_name, '- Target Variable')
@@ -395,12 +388,6 @@ def candlestick_moving_average():
     fig.show()
 
 
-"""
-TO FIX
-- fix hovertemplate for CandlestickMA
-"""
-
-
 # =============================================================================
 # Analysing the Histogram and Boxplot for crypto
 # =============================================================================
@@ -475,57 +462,13 @@ def logged_create_hist_and_box_pct_change():
     fig.update_xaxes(tickformat = '.0%', row = 2, col = 1)
     fig.show() 
 
-
-"""
-TO FIX
-- hovertemplate in boxplot and histogram
-"""
-
-# =============================================================================
-# Decomposition
-# =============================================================================
-def decomposition_plot(y):
-    # Viewing the seasonal decompose of the target variable
-    rcParams['figure.figsize'] = 18, 8
-    decomposition = sm.tsa.seasonal_decompose(y.asfreq('D'), model='multiplicative')
-    fig = decomposition.plot()
-    plt.show()
-
-## =============================================================================
-## Adfuller Test
-## =============================================================================
-# creating a function to run an adfuller-dickey test on target data
-def adfuller_test(data):
-    dftest = adfuller(data)
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print('============================================================')
-    print('Results of Dickey-Fuller Test for {}:'.format(crypto_name))
-    print('============================================================')
-    print (dfoutput)
-    
-
-# KPSS Test
-def KPSS_test(data):
-    result = kpss(data.values, regression='c', lags='auto')
-    print('============================================================')
-    print('Results of KPSS Test for {}:'.format(crypto_name))
-    print('============================================================')
-    print('\nKPSS Statistic: %f' % result[0])
-    print('p-value: %f' % result[1])
-    for key, value in result[3].items():
-        print('Critial Values:')
-        print(f'   {key}, {value}')
-    
-
 # =============================================================================
 # Creating a plot with analysis and rolling mean and standard deviation
 # =============================================================================
 def test_stationarity(timeseries):
     #Determing rolling statistics
-    rolmean = timeseries.rolling(window = 12).mean()
-    rolstd = timeseries.rolling(window = 12).std()
+    rolmean = timeseries.rolling(window = 365).mean()
+    rolstd = timeseries.rolling(window = 365).std()
 
     #Plot rolling statistics:   
     fig = go.Figure()
@@ -567,46 +510,6 @@ def test_stationarity(timeseries):
     #Show
     fig.show()
 
-# =============================================================================
-# ACF and PACF plots
-# =============================================================================
-
-## Create figure
-#fig, (ax1, ax2) = plt.subplots(2,1, figsize=(8,8))
-## Make ACF plot
-#plot_acf(y['Close'], lags=30, zero=False, ax=ax1)
-## Make PACF plot
-#plot_pacf(y['Close'], lags=30, zero=False, ax=ax2)
-#plt.show()
-#
-#
-#
-## df['sum'] is my time series where i want the pacf of.
-#df_pacf = pacf(y['Close'], nlags=300)
-#fig = go.Figure()
-#fig.add_trace(go.Scatter(
-#    x = np.arange(len(df_pacf)),
-#    y = df_pacf,
-#    name = 'PACF',
-#    ))
-#fig.update_xaxes(rangeslider_visible = True)
-#fig.update_layout(
-#    title = "Partial Autocorrelation",
-#    xaxis_title = "Lag",
-#    yaxis_title = "Partial Autocorrelation",
-#    #     autosize = False,
-#    #     width = 500,
-#         height = 500,
-#    )
-#fig.show()
-#
-#from scipy.signal import detrend
-#from statsmodels.graphics.tsaplots import plot_acf
-#stat_ts = pd.Series(detrend(np.log(y.Close)), index=y.index)
-#plot_acf(stat_ts)
-#
-#from statsmodels.graphics.tsaplots import plot_pacf
-#plot_pacf(stat_ts)
 
 # =============================================================================
 # Exploring the difference
@@ -869,3 +772,80 @@ def training_and_test_plot():
     fig.update_layout({'title': {'text':'Training and Test Set Plot'}},
                       yaxis_tickprefix = '$', yaxis_tickformat = ',.')
     fig.show()
+
+
+# =============================================================================
+# creating important functions for Time Series Analysis 
+# =============================================================================
+def normalise():
+    # Select first prices
+    first_price = df['Close'].iloc[0]
+    # Create normalized
+    normalized = df['Close'].div(first_price)
+    # Plot normalized
+    normalized.plot()
+    plt.show()
+
+
+# Dickey Fuller Test
+def adfuller_test(data):
+    dftest = adfuller(data)
+    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
+    for key,value in dftest[4].items():
+        dfoutput['Critical Value (%s)'%key] = value
+    print('============================================================')
+    print('Results of Dickey-Fuller Test for {}:'.format(crypto_name))
+    print('============================================================')
+    print (dfoutput)
+    if dftest[1]>0.05:
+        print('Conclude not stationary')
+    else:
+        print('Conclude stationary')
+    
+# KPSS Test
+def KPSS_test(data):
+    result = kpss(data.values, regression='c', lags='auto')
+    print('============================================================')
+    print('Results of KPSS Test for {}:'.format(crypto_name))
+    print('============================================================')
+    print('\nKPSS Statistic: %f' % result[0])
+    print('p-value: %f' % result[1])
+    for key, value in result[3].items():
+        print('Critial Values:')
+        print(f'   {key}, {value}')
+
+# seasonal decomposition
+def simple_seasonal_decompose(data,number):
+    rcParams['figure.figsize'] = 10, 8
+    decomposition = seasonal_decompose(data, model='additive', period=number)
+    decomposition.plot()
+    plt.show()
+    
+
+def simple_plot_acf(data, no_lags):
+    fig, (ax1, ax2) = plt.subplots(1,2, figsize = (14,5))
+    ax1.plot(data)
+    ax1.set_title('Original')
+    plot_pacf(data, lags=no_lags, ax=ax2);
+    plt.show()
+
+    
+def simple_plot_pacf(data, no_lags):
+    fig, (ax1, ax2) = plt.subplots(1,2, figsize = (14,5))
+    ax1.plot(data)
+    ax1.set_title('Original')
+    plot_acf(data, lags=no_lags, ax=ax2);
+    plt.show()
+
+def rolling_mean_std(timeseries, freq): 
+    #Determing rolling statistics
+    rolmean = timeseries.rolling(window=freq).mean()
+    rolstd = timeseries.rolling(window=freq).std()
+    
+    #Plot rolling statistics:
+    orig = plt.plot(timeseries, color='blue',label='Original')
+    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
+    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
+    plt.legend(loc='best')
+    plt.title('Rolling Mean & Standard Deviation')
+    plt.show()
