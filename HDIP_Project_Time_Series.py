@@ -82,8 +82,8 @@ boxplots(df.daily_return.index.year, df.daily_return)
 # Examining daily returns in each month year
 boxplots(df['month_year'], df['daily_return'])
 
-# Examining monthly returns in each month year
-boxplots(df['month_year'], df['monthly_return'])
+## Examining monthly returns in each month year
+#boxplots(df['month_year'], df['monthly_return'])
 
 # =============================================================================
 # creating important functions
@@ -112,6 +112,20 @@ def adfuller_test(data):
         print('Conclude not stationary')
     else:
         print('Conclude stationary')
+        
+def adfuller_test_for_Django(data, crypto_name):
+    dftest = adfuller(data)
+    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
+    for key,value in dftest[4].items():
+        dfoutput['Critical Value (%s)'%key] = value
+    
+    dfoutput = pd.DataFrame(dfoutput)
+    dfoutput = dfoutput.reset_index()
+    dfoutput = dfoutput.rename(columns={'index': crypto_name, '0': 0})
+    dfoutput1 = pd.DataFrame([['Stationary', np.where(dftest[1]>0.05, 'Conclude not stationary', 'Conclude stationary')]], columns=[crypto_name, 0])
+    
+    dfoutput = pd.concat([dfoutput,dfoutput1], sort=False).reset_index(drop=True)
+    print(dfoutput)
     
 # KPSS Test
 def KPSS_test(data):
@@ -132,22 +146,17 @@ def simple_seasonal_decompose(data,number):
     decomposition.plot()
     plt.show()
     
-
-def simple_plot_acf(data, no_lags):
-    fig, (ax1, ax2) = plt.subplots(1,2, figsize = (14,5))
+def acf_and_pacf_plots(data):
+    sns.set_style('darkgrid')
+#    fig, (ax1, ax2,ax3) = plt.subplots(3,1, figsize = (8,15)) # graphs in a column
+    fig, (ax1, ax2,ax3) = plt.subplots(1,3, figsize = (20,5)) # graphs in a row
     ax1.plot(data)
     ax1.set_title('Original')
-    plot_pacf(data, lags=no_lags, ax=ax2);
-    plt.show()
+    plot_acf(data, lags=40, ax=ax2);
+    plot_pacf(data, lags=40, ax=ax3);
+    fig.suptitle('ACF and PACF plots of Logged Closing Price Difference for {}'.format(crypto_name), fontsize=16)
 
     
-def simple_plot_pacf(data, no_lags):
-    fig, (ax1, ax2) = plt.subplots(1,2, figsize = (14,5))
-    ax1.plot(data)
-    ax1.set_title('Original')
-    plot_acf(data, lags=no_lags, ax=ax2);
-    plt.show()
-
 def rolling_mean_std(timeseries, freq):
     
     #Determing rolling statistics
@@ -197,8 +206,7 @@ training_and_test_plot()
 # =============================================================================
 
 simple_seasonal_decompose(y['Close'], 365)
-simple_plot_pacf(y['Close'], 60)
-simple_plot_acf(y['Close'], 60)
+acf_and_pacf_plots(y['Close'])
 KPSS_test(y['Close'])
 adfuller_test(y['Close'])
 rolling_mean_std(y['Close'], 365)
@@ -208,8 +216,7 @@ rolling_mean_std(y['Close'], 365)
 # =============================================================================
 
 simple_seasonal_decompose(y['log_Close'], 365)
-simple_plot_pacf(y['log_Close'], 60)
-simple_plot_acf(y['log_Close'], 60)
+acf_and_pacf_plots(y['log_Close'])
 KPSS_test(y['log_Close'])
 adfuller_test(y['log_Close'])
 rolling_mean_std(y['log_Close'], 365)
@@ -219,8 +226,7 @@ rolling_mean_std(y['log_Close'], 365)
 # =============================================================================
 
 simple_seasonal_decompose(y['diff'], 365)
-simple_plot_pacf(y['diff'], 60)
-simple_plot_acf(y['diff'], 60)
+acf_and_pacf_plots(y['diff'])
 KPSS_test(y['diff'])
 adfuller_test(y['diff'])
 rolling_mean_std(y['diff'], 365)
@@ -230,8 +236,7 @@ rolling_mean_std(y['diff'], 365)
 # =============================================================================
 
 simple_seasonal_decompose(y['log_Close_diff'], 365)
-simple_plot_pacf(y['log_Close_diff'],40)
-simple_plot_acf(y['log_Close_diff'],40)
+acf_and_pacf_plots(y['log_Close_diff'])
 KPSS_test(y['log_Close_diff'])
 adfuller_test(y['log_Close_diff'])
 rolling_mean_std(y['log_Close_diff'], 365)
@@ -249,8 +254,7 @@ rolling_mean_std(y['log_Close_diff'], 365)
 #
 ## DIFF - STATIONARY
 #simple_seasonal_decompose(monthly_y['diff'], 12)
-#simple_plot_pacf(monthly_y['diff'])
-#simple_plot_acf(monthly_y['diff'])
+#acf_and_pacf_plots(monthly_y['diff'])
 #KPSS_test(monthly_y['diff'])
 #adfuller_test(monthly_y['diff'])
 #rolling_mean_std(monthly_y['diff'], 365)
@@ -258,8 +262,7 @@ rolling_mean_std(y['log_Close_diff'], 365)
 #
 ## LOGGED CLOSE DIFF - STATIONARY
 #simple_seasonal_decompose(monthly_y['log_Close_diff'], 12)
-#simple_plot_pacf(monthly_y['log_Close_diff'])
-#simple_plot_acf(monthly_y['log_Close_diff'])
+#acf_and_pacf_plots(monthly_y['log_Close_diff'])
 #KPSS_test(monthly_y['log_Close_diff'])
 #adfuller_test(monthly_y['log_Close_diff'])
 #rolling_mean_std(monthly_y['log_Close_diff'], 365)
@@ -328,6 +331,7 @@ def run_AR_model(data):
 
 
 
+
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
@@ -340,8 +344,9 @@ def evaluate_forecast(y,pred):
     results['msle'] = mean_squared_log_error(y, pred)
     results['mape'] = mean_absolute_percentage_error(y, pred)
     results['rmse'] = np.sqrt(results['mse'])
-    return results
 
+    results = pd.DataFrame(results)
+    print(results)    
 
 
 
@@ -821,7 +826,9 @@ def run_AR_model_with_PLOTLY():
     data = [trace1, trace2]
     fig = go.Figure(data = data)
     
-    fig.update_layout({'title': {'text':'ARIMA Forecasting of {}'.format(str(crypto_name))}},
+    rss = np.nansum((results.fittedvalues-y['log_Close_diff'])**2)
+    
+    fig.update_layout({'title': {'text':'{} Price Forecasting Estimation Using ARIMA, RSS: {}%'.format(str(crypto_name), rss)}},
                       yaxis_tickprefix = '$', yaxis_tickformat = ',.')
     fig.show()
     
@@ -865,6 +872,17 @@ def ARIMA_forecasting_with_Close_PLOTLY():
     y_upper = fcast['mean_ci_upper']
     y_lower = fcast['mean_ci_lower']
     
+    trace1 = go.Scatter(
+        x = df.index,
+        y = df['Close'],
+        customdata = df['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        name = 'Training Set')
+
+
     trace2 = go.Scatter(
         x=y_upper.index,
         y=y_upper, 

@@ -93,15 +93,19 @@ create_train_and_test()
 # creating a plot for the training and test set
 training_and_test_plot()
 
+# =============================================================================
+# 
+# =============================================================================
+create_diff_volume(y['diff'])
 
+create_diff_log_diff()
 
 # =============================================================================
 # Examining CLOSE
 # =============================================================================
 
 simple_seasonal_decompose(y['Close'], 365)
-simple_plot_pacf(y['Close'], 60)
-simple_plot_acf(y['Close'], 60)
+acf_and_pacf_plots(y['Close'])
 KPSS_test(y['Close'])
 adfuller_test(y['Close'])
 rolling_mean_std(y['Close'], 365)
@@ -111,8 +115,7 @@ rolling_mean_std(y['Close'], 365)
 # =============================================================================
 
 simple_seasonal_decompose(y['log_Close'], 365)
-simple_plot_pacf(y['log_Close'], 60)
-simple_plot_acf(y['log_Close'], 60)
+acf_and_pacf_plots(y['log_Close'])
 KPSS_test(y['log_Close'])
 adfuller_test(y['log_Close'])
 rolling_mean_std(y['log_Close'], 365)
@@ -122,8 +125,7 @@ rolling_mean_std(y['log_Close'], 365)
 # =============================================================================
 
 simple_seasonal_decompose(y['diff'], 365)
-simple_plot_pacf(y['diff'], 60)
-simple_plot_acf(y['diff'], 60)
+acf_and_pacf_plots(y['diff'])
 KPSS_test(y['diff'])
 adfuller_test(y['diff'])
 rolling_mean_std(y['diff'], 365)
@@ -133,8 +135,21 @@ rolling_mean_std(y['diff'], 365)
 # =============================================================================
 
 simple_seasonal_decompose(y['log_Close_diff'], 365)
-simple_plot_pacf(y['log_Close_diff'],40)
-simple_plot_acf(y['log_Close_diff'],40)
+acf_and_pacf_plots(y['log_Close_diff'])
 KPSS_test(y['log_Close_diff'])
 adfuller_test(y['log_Close_diff'])
 rolling_mean_std(y['log_Close_diff'], 365)
+
+
+# =============================================================================
+# Predicing and Forecasting the Closing Price with FBProphet 
+# =============================================================================
+# predicting price using FBProphet 
+predict_prophet()
+predict_prophet_components()
+predict_prophet_plotly()
+
+#Forecasting price using FBProphet 
+forecast_prophet()
+forecast_prophet_components()
+forecast_prophet_plotly()

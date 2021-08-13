@@ -18,6 +18,13 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from pandas.io.json import json_normalize
 
+
+url_yahoo_finance = []
+for num in range(0,51,25):
+    url = 'https://finance.yahoo.com/cryptocurrencies/?offset=25&count='+ str(num)
+    url_yahoo_finance.append(url)
+
+
 # getting the live page
 def get_yahoo_table():
 
