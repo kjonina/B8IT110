@@ -165,3 +165,14 @@ Nothing ground-breaking really.
 
 ##### Artefacts
 - fixing up HDIP_Project.py and HDIP_Project_Functions.py 
+
+
+## 16th August 
+##### Prophet 
+- got prophet to work! Takes a long time
+
+##### Digital Ocean
+- Opened a server on Digital Ocean to stream the website
+- After much arguing, I managed to get the set up finished and get the domain for karinajonina.com 
+- hopefully the two will be connected within the 24 hours.
+- Solved issue with settings in github by creating new settings within digital ocean
