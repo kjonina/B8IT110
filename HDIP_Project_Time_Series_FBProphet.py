@@ -107,8 +107,10 @@ def predict_prophet():
     df_forecast = df_prophet.make_future_dataframe(periods= len(df_test), freq='D')
     
     df_forecast = df_prophet.predict(df_forecast)
-    df_forecast['Name'] = crypto['Name']
-    
+    df_forecast['Name'] = crypto[['Name']]
+    df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
+
+
 def predict_prophet_components():
     df_prophet.plot_components(df_forecast)
 
@@ -122,8 +124,7 @@ def predict_prophet_plotly():
         customdata = df_train['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>",
+        "Closing Price: %{y:$,.2f}<br>",
         name = 'Training Set')
     
     trace2 = go.Scatter(
@@ -133,12 +134,11 @@ def predict_prophet_plotly():
         customdata = df_test['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>",
+        "Closing Price: %{y:$,.2f}<br>",
         yaxis="y1")
     
     trend = go.Scatter(
-        name = 'trend',
+        name = 'Trend',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat']),
@@ -152,7 +152,7 @@ def predict_prophet_plotly():
         )
     )
     upper_band = go.Scatter(
-        name = 'upper band',
+        name = 'Upper Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_upper']),
@@ -164,7 +164,7 @@ def predict_prophet_plotly():
         fill = 'tonexty'
     )
     lower_band = go.Scatter(
-        name= 'lower band',
+        name= 'Lower Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_lower']),
@@ -214,7 +214,7 @@ predict_prophet_plotly()
 
 def all_predict_prophet():
     
-    crypto = df_train[['Close', 'Name']]
+    crypto = df_train[['Close']]
     crypto = crypto.reset_index()
     crypto = crypto.rename(columns={'Date': 'ds', 'Close': 'y'})
     df_prophet = Prophet(changepoint_prior_scale=0.15,yearly_seasonality=True,daily_seasonality=True)
@@ -223,7 +223,8 @@ def all_predict_prophet():
     df_forecast = df_prophet.make_future_dataframe(periods= len(df_test), freq='D')
     
     df_forecast = df_prophet.predict(df_forecast)
-    df_forecast['Name'] = crypto['Name']
+    df_forecast['Name'] = crypto[['Name']]
+    df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
 
     
     trace1 = go.Scatter(
@@ -232,8 +233,7 @@ def all_predict_prophet():
         customdata = df_train['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>",
+        "Closing Price: %{y:$,.2f}<br>",
         name = 'Training Set')
     
     trace2 = go.Scatter(
@@ -243,12 +243,11 @@ def all_predict_prophet():
         customdata = df_test['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>",
+        "Closing Price: %{y:$,.2f}<br>",
         yaxis="y1")
     
     trend = go.Scatter(
-        name = 'trend',
+        name = 'Trend',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat']),
@@ -262,7 +261,7 @@ def all_predict_prophet():
         )
     )
     upper_band = go.Scatter(
-        name = 'upper band',
+        name = 'Upper Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_upper']),
@@ -274,7 +273,7 @@ def all_predict_prophet():
         fill = 'tonexty'
     )
     lower_band = go.Scatter(
-        name= 'lower band',
+        name= 'Lower Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_lower']),
@@ -314,7 +313,6 @@ def all_predict_prophet():
     fig.show()
 
 
-
 all_predict_prophet()
 
 
@@ -337,29 +335,30 @@ def forecast_prophet():
     df_forecast = df_prophet.make_future_dataframe(periods= estimated_days*2, freq='D')
     
     df_forecast = df_prophet.predict(df_forecast)
-    df_forecast['Name'] = crypto['Name']
+    df_forecast['Name'] = crypto[['Name']]
+    df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
     
 def forecast_prophet_components():
     df_prophet.plot_components(df_forecast)
 
 
 def forecast_prophet_plotly():
+
     trace = go.Scatter(
-        name = 'Actual price',
-        mode = 'markers',
-        x = list(df_forecast['ds']),
-        y = list(crypto['y']),
-        customdata = crypto['Name'],
+        x = df.index,
+        y = df['Close'],
+        customdata = df['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
-                        "Date: %{x|%d %b %Y} <br>" +
-                        "Actual Closing Price: %{y:$,.2f}<br>",
-        marker=dict(
-            color='#FFBAD2',
-            line=dict(width=1)
-        )
-    )
+        "Date: %{x|%d %b %Y} <br>" +
+        "Closing Price: %{y:$,.2f}<br>",
+        name = 'Actual Closing Price',
+        marker = dict(
+            color = 'blue',
+            line = dict(width=3)
+        ))
+    
     trace1 = go.Scatter(
-        name = 'trend',
+        name = 'Trend',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat']),
@@ -373,7 +372,7 @@ def forecast_prophet_plotly():
         )
     )
     upper_band = go.Scatter(
-        name = 'upper band',
+        name = 'Upper Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_upper']),
@@ -385,7 +384,7 @@ def forecast_prophet_plotly():
         fill = 'tonexty'
     )
     lower_band = go.Scatter(
-        name= 'lower band',
+        name= 'Lower Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_lower']),
@@ -429,3 +428,28 @@ def forecast_prophet_plotly():
 forecast_prophet()
 forecast_prophet_components()
 forecast_prophet_plotly()
+
+# =============================================================================
+# Evaluation
+# =============================================================================
+
+def prophet_evaluation():
+    
+    df_forecast['dtest_trend'] = df_forecast['trend'].iloc[-len(df_test):]
+
+    df_forecast1= df_forecast[['dtest_trend']].dropna()
+    results = pd.DataFrame({'R2 Score':r2_score(df_test['Close'], df_forecast1['dtest_trend']),
+                            }, index=[0])
+    results['Mean Absolute Error'] = '{:.4f}'.format(np.mean(np.abs((df_test['Close'] - df_forecast1['dtest_trend']) / df_test['Close'])) * 100)
+    results['Median Absolute Error'] = '{:.4f}'.format(median_absolute_error(df_test['Close'], df_forecast1['dtest_trend']))
+    results['MSE'] = '{:.4f}'.format(mean_squared_error(df_test['Close'], df_forecast1['dtest_trend']))
+    results['MSLE'] = '{:.4f}'.format(mean_squared_log_error(df_test['Close'], df_forecast1['dtest_trend']))
+    results['MAPE'] = '{:.4f}'.format(np.mean(np.abs((df_test['Close'] - df_forecast1['dtest_trend']) / df_test['Close'])) * 100)
+    results['RMSE'] = '{:.4f}'.format(np.sqrt(float(results['MSE'])))
+    
+    results = pd.DataFrame(results).transpose()
+    results = results.reset_index()
+    return results.to_json(orient='records')
+
+
+prophet_evaluation()

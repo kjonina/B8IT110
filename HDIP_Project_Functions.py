@@ -941,6 +941,91 @@ def rolling_mean_std(timeseries, freq):
 #adfuller_test(monthly_y['log_Close_diff'])
 #rolling_mean_std(monthly_y['log_Close_diff'], 365)
 
+# =============================================================================
+# Boxplots of Returns with PLOTLY
+# =============================================================================
+def box_year():
+    fig = go.Figure()
+
+    
+    fig.add_trace(go.Box(x = df.index.year, y = df['daily_return'],
+                         customdata = df['Name'],
+                            hovertemplate="<b>%{customdata}</b><br><br>" +
+                                    "Date: %{x|%d %b %Y} <br>" +
+                                    "Daily Return: %{y:.0%}<br>"+
+                                    "<extra></extra>"))
+
+    fig.update_layout(
+        title = 'Daily Returns of {}'.format(crypto_name),
+        yaxis_title = '% Change',
+    yaxis_tickformat = ',.0%')
+    fig.show()
+
+box_year()
+
+# =============================================================================
+# Decomposition with PLOTLY PACKAGE!
+# =============================================================================
+
+def decomposition(data, freq):
+
+    
+    decomposition = sm.tsa.seasonal_decompose(data, model='additive', period = freq)
+    
+    #seasonality
+    decomp_seasonal = decomposition.seasonal
+
+    #trend
+    decomp_trend = decomposition.trend
+
+    #residual
+    decomp_resid = decomposition.resid
+
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=False, subplot_titles=[
+            'Price  of {}'.format(str(crypto_name)),
+            'Trend values of {}'.format(str(crypto_name)),
+            'Seasonal values of {}'.format(str(crypto_name)),
+            'Residual values of {}'.format(str(crypto_name))])
+
+
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = data,
+                            name = crypto_name, 
+                            mode='lines'),row = 1, col = 1)
+
+
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = decomp_trend,
+                            name = 'Trend', 
+                            mode='lines'),row = 2, col = 1)
+
+
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = decomp_seasonal,
+                            name = 'Seasonality', 
+                            mode='lines'),row = 3, col = 1)
+
+    fig.add_trace(go.Scatter(x = df.index,
+                            y = decomp_resid,
+                            name = 'Residual', 
+                            mode='lines'),row = 4, col = 1)
+
+    # Add titles
+    fig.update_layout( 
+            title = 'Decomposition of {}'.format(str(crypto_name)))
+    fig['layout']['yaxis1']['title']='US Dollars'
+    fig['layout']['yaxis2']['title']='Trend'
+    fig['layout']['yaxis3']['title']='Seasonality'
+    fig['layout']['yaxis4']['title']='Residual'
+
+    fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
+    fig.update_yaxes(tickformat = ',.', row = 2, col = 1)
+    fig.update_yaxes(tickformat = ',.', row = 3, col = 1)
+    fig.update_yaxes(tickformat = ',.', row = 4, col = 1)
+
+    fig.show()
+
+
 
 # =============================================================================
 # Predict Closing Price using FBProphet

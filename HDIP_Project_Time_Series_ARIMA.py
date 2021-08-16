@@ -67,109 +67,8 @@ print('Nan in each columns' , y.isna().sum())
 
 
 # =============================================================================
-# Examing returns with boxplots
+# Training and Test Set
 # =============================================================================
-
-def boxplots(x, y):
-    fig, ax = plt.subplots(figsize=(15,6))
-    sns.boxplot(x, y, ax=ax)
-    ax.set_xticklabels(x.unique(),  rotation = 45, fontsize = 12)
-    plt.show()
-
-# Examining daily returns in each year
-boxplots(df.daily_return.index.year, df.daily_return)
-
-# Examining daily returns in each month year
-boxplots(df['month_year'], df['daily_return'])
-
-## Examining monthly returns in each month year
-#boxplots(df['month_year'], df['monthly_return'])
-
-# =============================================================================
-# creating important functions
-# =============================================================================
-def normalise():
-    # Select first prices
-    first_price = df['Close'].iloc[0]
-    # Create normalized
-    normalized = df['Close'].div(first_price)
-    # Plot normalized
-    normalized.plot()
-    plt.show()
-
-
-# Dickey Fuller Test
-def adfuller_test(data):
-    dftest = adfuller(data)
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print('============================================================')
-    print('Results of Dickey-Fuller Test for {}:'.format(crypto_name))
-    print('============================================================')
-    print (dfoutput)
-    if dftest[1]>0.05:
-        print('Conclude not stationary')
-    else:
-        print('Conclude stationary')
-        
-def adfuller_test_for_Django(data, crypto_name):
-    dftest = adfuller(data)
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    
-    dfoutput = pd.DataFrame(dfoutput)
-    dfoutput = dfoutput.reset_index()
-    dfoutput = dfoutput.rename(columns={'index': crypto_name, '0': 0})
-    dfoutput1 = pd.DataFrame([['Stationary', np.where(dftest[1]>0.05, 'Conclude not stationary', 'Conclude stationary')]], columns=[crypto_name, 0])
-    
-    dfoutput = pd.concat([dfoutput,dfoutput1], sort=False).reset_index(drop=True)
-    print(dfoutput)
-    
-# KPSS Test
-def KPSS_test(data):
-    result = kpss(data.values, regression='c', lags='auto')
-    print('============================================================')
-    print('Results of KPSS Test for {}:'.format(crypto_name))
-    print('============================================================')
-    print('\nKPSS Statistic: %f' % result[0])
-    print('p-value: %f' % result[1])
-    for key, value in result[3].items():
-        print('Critial Values:')
-        print(f'   {key}, {value}')
-
-# seasonal decomposition
-def simple_seasonal_decompose(data,number):
-    rcParams['figure.figsize'] = 10, 8
-    decomposition = seasonal_decompose(data, model='additive', period=number)
-    decomposition.plot()
-    plt.show()
-    
-def acf_and_pacf_plots(data):
-    sns.set_style('darkgrid')
-#    fig, (ax1, ax2,ax3) = plt.subplots(3,1, figsize = (8,15)) # graphs in a column
-    fig, (ax1, ax2,ax3) = plt.subplots(1,3, figsize = (20,5)) # graphs in a row
-    ax1.plot(data)
-    ax1.set_title('Original')
-    plot_acf(data, lags=40, ax=ax2);
-    plot_pacf(data, lags=40, ax=ax3);
-    fig.suptitle('ACF and PACF plots of Logged Closing Price Difference for {}'.format(crypto_name), fontsize=16)
-
-    
-def rolling_mean_std(timeseries, freq):
-    
-    #Determing rolling statistics
-    rolmean = timeseries.rolling(window=freq).mean()
-    rolstd = timeseries.rolling(window=freq).std()
-    
-    #Plot rolling statistics:
-    orig = plt.plot(timeseries, color='blue',label='Original')
-    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
-    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
-    plt.legend(loc='best')
-    plt.title('Rolling Mean & Standard Deviation')
-    plt.show()
 
 def create_train_and_test():
     global df_train 
@@ -189,91 +88,14 @@ def create_train_and_test():
     print('============================================================')
     print(df_test.head())
     print('Test set has {} rows and {} columns.'.format(*df_test.shape))
-    
-
-def training_and_test_plot(): 
-    # creating a plotly graph for training and test set
-    df_train['Close'].plot()
-    df_test['Close'].plot()
-    plt.show()
 
 create_train_and_test()
-
-training_and_test_plot()
-
-# =============================================================================
-# Examining CLOSE
-# =============================================================================
-
-simple_seasonal_decompose(y['Close'], 365)
-acf_and_pacf_plots(y['Close'])
-KPSS_test(y['Close'])
-adfuller_test(y['Close'])
-rolling_mean_std(y['Close'], 365)
-
-# =============================================================================
-# Examining LOG CLOSE
-# =============================================================================
-
-simple_seasonal_decompose(y['log_Close'], 365)
-acf_and_pacf_plots(y['log_Close'])
-KPSS_test(y['log_Close'])
-adfuller_test(y['log_Close'])
-rolling_mean_std(y['log_Close'], 365)
-
-# =============================================================================
-# Examining DIFF - STATIONARY
-# =============================================================================
-
-simple_seasonal_decompose(y['diff'], 365)
-acf_and_pacf_plots(y['diff'])
-KPSS_test(y['diff'])
-adfuller_test(y['diff'])
-rolling_mean_std(y['diff'], 365)
-
-# =============================================================================
-# Examining LOG CLOSE DIFF - STATIONARY
-# =============================================================================
-
-simple_seasonal_decompose(y['log_Close_diff'], 365)
-acf_and_pacf_plots(y['log_Close_diff'])
-KPSS_test(y['log_Close_diff'])
-adfuller_test(y['log_Close_diff'])
-rolling_mean_std(y['log_Close_diff'], 365)
-
-
-## =============================================================================
-## Monthly Data - 2511 observations to 82 - Not good
-## =============================================================================
-## RESAMPLING DATA INTO MONTHL1Y
-#monthly_y = y.copy()
-#monthly_y.resample('M').mean().head()
-#monthly_y = monthly_y.asfreq('M')
-##monthly_y.resample('M').median().head()
-#
-#
-## DIFF - STATIONARY
-#simple_seasonal_decompose(monthly_y['diff'], 12)
-#acf_and_pacf_plots(monthly_y['diff'])
-#KPSS_test(monthly_y['diff'])
-#adfuller_test(monthly_y['diff'])
-#rolling_mean_std(monthly_y['diff'], 365)
-#
-#
-## LOGGED CLOSE DIFF - STATIONARY
-#simple_seasonal_decompose(monthly_y['log_Close_diff'], 12)
-#acf_and_pacf_plots(monthly_y['log_Close_diff'])
-#KPSS_test(monthly_y['log_Close_diff'])
-#adfuller_test(monthly_y['log_Close_diff'])
-#rolling_mean_std(monthly_y['log_Close_diff'], 365)
 
 # =============================================================================
 # AR MODEL
 # =============================================================================
 
-from statsmodels.tsa.ar_model import AR
-import warnings
-warnings.filterwarnings('ignore', 'statsmodels.tsa.ar_model.AR', FutureWarning)
+
 
 
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, median_absolute_error, mean_squared_log_error
@@ -286,10 +108,6 @@ def run_AR_model(data):
 
     print (results.summary())
 
-    plt.plot(data)
-    plt.plot(results.fittedvalues, color='red')
-    plt.title('RSS: %.4f'% np.nansum((results.fittedvalues-data)**2))
-    plt.show()
     
     predictions_ARIMA_diff = pd.Series(results.fittedvalues, copy=True)
     print('============================================================')
@@ -322,31 +140,45 @@ def run_AR_model(data):
 
 
 
-    fig, ax = plt.subplots(figsize=(15, 5), sharey=False) 
+    fig, ax = plt.subplots(figsize=(15, 5)) 
     y['Close'].plot(ax=ax)
     predictions_ARIMA.plot(ax=ax)
     plt.title('RMSE: %.4f'% np.sqrt(np.nansum((predictions_ARIMA-y.Close)**2)/len(y.Close)))
     plt.show();
     
+run_AR_model(y.log_Close_diff)
 
 
+# =============================================================================
+# Evaluation
+# =============================================================================
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, median_absolute_error, mean_squared_log_error
+from math import sqrt
 
 
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
 def evaluate_forecast(y,pred):
+    global results
     results = pd.DataFrame({'r2_score':r2_score(y, pred),
                            }, index=[0])
-    results['mean_absolute_error'] = mean_absolute_error(y, pred)
-    results['median_absolute_error'] = median_absolute_error(y, pred)
-    results['mse'] = mean_squared_error(y, pred)
-    results['msle'] = mean_squared_log_error(y, pred)
-    results['mape'] = mean_absolute_percentage_error(y, pred)
-    results['rmse'] = np.sqrt(results['mse'])
+    results['mean_absolute_error'] = '{:.4f}'.format(mean_absolute_error(y, pred))
+    results['median_absolute_error'] = '{:.4f}'.format(median_absolute_error(y, pred))
+    results['mse'] = '{:.4f}'.format(mean_squared_error(y, pred))
+    results['msle'] = '{:.4f}'.format(mean_squared_log_error(y, pred))
+    results['mape'] = '{:.4f}'.format(mean_absolute_percentage_error(y, pred))
+    results['rmse'] = '{:.4f}'.format(np.sqrt(float(results['mse'])))
 
-    results = pd.DataFrame(results)
-    print(results)    
+    results = pd.DataFrame(results).transpose()
+    results = results.reset_index()
+    print(results)
+              
+
+evaluate_forecast(df_test.Close,fcast.mean_se)
+
+
+'{:.10f}'.format(mean_absolute_error(df_test['Close'], fcast['mean_se']))  
 
 
 
@@ -362,12 +194,15 @@ from math import sqrt
     
 def run_ARIMA_model():
     # fit model
-    model = ARIMA(y['log_Close_diff'], order=(4, 1, 4))
-    results = model.fit()
-    print (results.summary())
+model = ARIMA(y['log_Close_diff'], order=(4, 1, 4))
+results = model.fit()
 
-    plt.plot(y['log_Close_diff'])
-    plt.plot(results.fittedvalues, color='red')
+results.fittedvalues
+
+print (results.summary())
+
+plt.plot(y['log_Close_diff'])
+plt.plot(results.fittedvalues, color='red')
     plt.title('RSS: %.4f'% np.nansum((results.fittedvalues-y['log_Close_diff'])**2))
     plt.show()
     
@@ -409,7 +244,7 @@ def run_ARIMA_model():
     plt.show()
 
 
-
+run_ARIMA_model()
 
 
 
@@ -494,6 +329,8 @@ shape = pd.DataFrame(df_test.shape)
 size = shape.loc[0,0]
 print(size)
 
+len(df_test)
+
 def ARIMA_forecasting_dftest_with_Close():
     # Instantiate the model
     model =  ARIMA(df_train['Close'], order=(6,1,3))
@@ -509,7 +346,7 @@ def ARIMA_forecasting_dftest_with_Close():
 
     
     #Predictions
-    forecast = results.get_forecast(steps=219, dynamic = True)
+    forecast = results.get_forecast(steps=len(df_test), dynamic = True)
         
     # Confidence level of 90%
     fcast = forecast.summary_frame(alpha=0.10) 

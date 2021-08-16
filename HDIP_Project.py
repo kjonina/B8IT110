@@ -142,6 +142,11 @@ rolling_mean_std(y['log_Close_diff'], 365)
 
 
 # =============================================================================
+# Plotly 
+# =============================================================================
+decomposition(df['Close'], 365)
+
+# =============================================================================
 # Predicing and Forecasting the Closing Price with FBProphet 
 # =============================================================================
 # predicting price using FBProphet 
@@ -153,3 +158,6 @@ predict_prophet_plotly()
 forecast_prophet()
 forecast_prophet_components()
 forecast_prophet_plotly()
+
+
+
