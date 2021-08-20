@@ -204,61 +204,53 @@ def create_y(x):
 # =============================================================================
 def price_sma_volume_chart():
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=[
-            'Price and Moving Averages of {}'.format(str(crypto_name)),
+            'Price and Death Cross of {}'.format(str(crypto_name)),
             'Volume of {}'.format(str(crypto_name))])
+
     # Lineplots of price and moving averages
     fig.add_trace(go.Scatter(
                             x = df.index,
                             y = df['Close'],
-                            name = crypto_name, 
+                            name = crypto_name,
                             mode='lines',
-                            
-                            # corrects hovertemplate labels!
-                            customdata = df['Name'], 
+                            customdata = df['Name'],
                             hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "Date: %{x|%d %b %Y} <br>" +
-                                            "Closing Price: %{y:$,.2f}<br>" +
-                                            "<extra></extra>",
+                                            "Closing Price: %{y:$,.2f}<br>" ,
                             line = dict(color="black")), row = 1, col = 1)
+
     fig.add_trace(go.Scatter(x = df.index,
                              y = df['short_SMA'],
-                             name = 'Short SMA',
-                             mode = 'lines', 
-                             
-                             # corrects hovertemplate labels!
-                             customdata = df['Name'], 
+                             name = 'Short SMA 50-Day',
+                             mode = 'lines',
+                             customdata = df['Name'],
                              hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "Date: %{x|%d %b %Y} <br>" +
-                                            "Short Moving Average Price: %{y:$,.2f}<br>" +
-                                            "<extra></extra>",
+                                            "Short (50-Day) Moving Average Price: %{y:$,.2f}<br>",
                              line = dict(color="red")), row = 1, col = 1)
+
     fig.add_trace(go.Scatter(x = df.index,
                              y = df['long_SMA'],
-                             name = 'Long SMA',
+                             name = 'Long SMA 200-Day',
                              mode = 'lines',
-                             
-                             # corrects hovertemplate labels!
-                             customdata = df['Name'], 
+                             customdata = df['Name'],
                              hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "Date: %{x|%d %b %Y} <br>" +
-                                            "Long Moving Average Price: %{y:$,.2f}<br>"+
-                                            "<extra></extra>",
+                                            "Long (200-Day) Moving Average Price: %{y:$,.2f}<br>",
                              line = dict(color="green")), row = 1, col = 1)
-    # Barplot of volume 
+    # Barplot of volume
     fig.add_trace(go.Bar(x = df.index,
                     y = df['Volume'],
                     name = 'Volume',
-                    
-                    # corrects hovertemplate labels!
-                    customdata = df['Name'],  
+                    customdata = df['Name'],
                     hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Volume: %{y:,.}<br>" +
                                     "<extra></extra>",
                     marker = dict(color="black", opacity = True)), row = 2, col = 1)
     # Add titles
-    fig.update_layout( 
-            title = 'Price of {}'.format(str(crypto_name)))
+    fig.update_layout(
+            title = 'Summary of {}'.format(str(crypto_name)))
     fig['layout']['yaxis1']['title']='US Dollars'
     fig['layout']['yaxis2']['title']='Volume'
     # X-Axes
@@ -266,17 +258,18 @@ def price_sma_volume_chart():
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     fig.update_layout(xaxis_rangeslider_visible = False)
     fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
-    #time buttons 
+    #time buttons
     fig.update_xaxes(rangeselector= {'visible' :False}, row = 2, col = 1)
 
     #Show
@@ -286,9 +279,7 @@ def price_sma_volume_chart():
 
 def candlestick_moving_average():
 
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, subplot_titles=[
-            'Price and Moving Averages of {}'.format(str(crypto_name)),
-            'Volume of {}'.format(str(crypto_name))])
+    fig  = go.Figure()
 
     trace1 = go.Candlestick(
         x = df.index,
@@ -323,13 +314,13 @@ def candlestick_moving_average():
         steps = [],
         currentvalue = dict(
             font = dict(size = 16),
-            prefix = "SMA: ",
+            prefix = "Simple Moving Average Step: ",
             xanchor = "left",
         ),
 
-        x = 0.15,
+        x = 0,
         y = 0,
-        len = 0.85,
+        len = 1,
         pad = dict(t = 0, b = 0),
         yanchor = "bottom",
         xanchor = "left",
@@ -376,7 +367,7 @@ def candlestick_moving_average():
 
         ),
         yaxis = dict(
-            tickprefix = "$",
+            tickprefix = "$", tickformat = ',.',
             type = "linear",
             domain = [0.25, 1],
         ),
@@ -386,6 +377,11 @@ def candlestick_moving_average():
 
 
     fig = go.Figure(data = data, layout = layout)
+
+
+#
+    fig.update_layout(xaxis_rangeslider_visible = False)
+    fig.update_layout(showlegend=False)
     
     #Show
     fig.show()
@@ -427,18 +423,22 @@ def create_hist_and_box_pct_change():
     # 1.Histogram
     fig.add_trace(go.Histogram(x = y['Close Percentage Change'], name = 'Histogram', nbinsx = round(len(y) / 20),
                                ), row=1, col=1)
-    
-    #2. Boxplot 
+
+    #2. Boxplot
     fig.add_trace(go.Box(x = y['Close Percentage Change'], name = 'Boxplot',
                          customdata = y['Name'],
                          hovertemplate="<b>%{customdata}</b><br><br>" +
                                             "1-Day Percentage Change: %{x:.0%}<br>"+
-                                    "<extra></extra>"), row=2, col=1)
+                                    "<extra></extra>"
+                    ), row=2, col=1)
 
     fig.update_layout(title = 'Plots of 1-Day Close Percentage Change for {}'.format(crypto_name))
     fig['layout']['yaxis1']['title'] = '# of Observations'
+
     fig.update_xaxes(tickformat = '.0%', row = 1, col = 1)
     fig.update_xaxes(tickformat = '.0%', row = 2, col = 1)
+    fig.update_layout(showlegend=False)
+
     fig.show()
     
     
@@ -479,7 +479,7 @@ def test_stationarity(timeseries):
                                 y = timeseries,
                                 name = 'Original', 
                                 mode='lines',
-                                customdata = df['Name'],
+                                customdata = timeseries['Name'],
                                 hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Closing Price: %{y:$,.2f}<br>" +
@@ -489,7 +489,7 @@ def test_stationarity(timeseries):
                                 y = rolmean,
                                 name = 'Rolling Mean', 
                                 mode='lines',
-                                customdata = df['Name'],
+                                customdata = timeseries['Name'],
                                 hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Rolling Mean Price: %{y:$,.2f}<br>" +
@@ -499,7 +499,7 @@ def test_stationarity(timeseries):
                                 y = rolstd,
                                 name = 'Rolling Std', 
                                 mode='lines',
-                                customdata = df['Name'],
+                                customdata = y['Name'],
                                 hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Rolling Std: %{y:$,.2f}<br>" +
@@ -524,7 +524,7 @@ def diff_plot(data):
                             y = data,
                             name = str(crypto_name), 
                             mode='lines',
-                            customdata = df['Name'],
+                            customdata = data['Name'],
                             hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Price Volatility: %{y:$,.2f}<br>"+
@@ -539,14 +539,15 @@ def diff_plot(data):
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     #Show
     fig.show()
     
@@ -563,7 +564,7 @@ def create_diff_volume(data):
                             y = data,
                             name = str(crypto_name), 
                             mode='lines',
-                            customdata = df['Name'],
+                            customdata = data['Name'],
                             hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Price Volatility: %{y:$,.2f}<br>"+
@@ -590,14 +591,15 @@ def create_diff_volume(data):
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     fig.update_layout(xaxis_rangeslider_visible = False)
     fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
     #time buttons 
@@ -645,14 +647,15 @@ def create_diff_log_diff():
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     fig.update_layout(xaxis_rangeslider_visible = False)
     fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
     fig.update_xaxes(rangeselector= {'visible':False}, row=2, col=1)
@@ -667,7 +670,7 @@ def create_diff_log_diff():
 # =============================================================================
 
 def returns():
-    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=[
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=False, subplot_titles=[
             'Closing Price of {}'.format(str(crypto_name)),
             'Daily Return of {}'.format(str(crypto_name)),
             'Monthly Return of {}'.format(str(crypto_name)),
@@ -684,7 +687,7 @@ def returns():
 
     fig.add_trace(go.Scatter(
                             x = df.index,
-                            y = df['daily_return'], 
+                            y = df['daily_return'],
                             mode='lines',
                             customdata = df['Name'], name = 'Daily Return',
                             hovertemplate="<b>%{customdata}</b><br><br>" +
@@ -701,7 +704,7 @@ def returns():
                                             "Date: %{x|%d %b %Y} <br>" +
                                             "Monthly Return: %{y:,.0%}<br>"+
                                             "<extra></extra>"), row = 3, col = 1)
-    
+
     fig.add_trace(go.Scatter(
                             x = df.index,
                             y = df['annual_return'],
@@ -711,28 +714,28 @@ def returns():
                                             "Date: %{x|%d %b %Y} <br>" +
                                             "Annual Return: %{y:,.0%}<br>"+
                                             "<extra></extra>"), row = 4, col = 1)
-    
+
     # Add titles
-    fig.update_layout( 
+    fig.update_layout(
             title = 'Price of {}'.format(str(crypto_name)))
     fig['layout']['yaxis1']['title']='US Dollars'
-    fig['layout']['yaxis2']['title']='US Dollars'
-    fig['layout']['yaxis3']['title']='US Dollars'
-    fig['layout']['yaxis4']['title']='US Dollars'
+    fig['layout']['yaxis2']['title']='% Return'
+    fig['layout']['yaxis3']['title']='% Return'
+    fig['layout']['yaxis4']['title']='% Return'
     # X-Axes
     fig.update_xaxes(
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
-
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     fig.update_layout(xaxis_rangeslider_visible=False)
     fig.update_xaxes(rangeslider= {'visible':False}, row=2, col=1)
     fig.update_xaxes(rangeslider= {'visible':False}, row=3, col=1)
@@ -740,37 +743,16 @@ def returns():
 
     fig.update_xaxes(rangeselector= {'visible':False}, row=2, col=1)
     fig.update_xaxes(rangeselector= {'visible':False}, row=3, col=1)
-    fig.update_xaxes(rangeselector= {'visible':False}, row=4, col=1)    
+    fig.update_xaxes(rangeselector= {'visible':False}, row=4, col=1)
 
     fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
     fig.update_yaxes(tickformat = ',.0%', row = 2, col = 1)
     fig.update_yaxes(tickformat = ',.0%', row = 3, col = 1)
     fig.update_yaxes(tickformat = ',.0%', row = 4, col = 1)
 
+    fig.update_layout(showlegend=False)
     #Show
     fig.show()
-
-# =============================================================================
-# Exploring the logged data
-# =============================================================================
-# function to create a histogram and lineplot of logged data
-def log_create_hist_and_line(data):
-    fig = make_subplots(rows=2, cols=1,
-                        subplot_titles=['Histogram of {} logged price'.format(crypto_name),
-                                        'Line plot of {} logged price'.format(crypto_name)])
-    # 1. Histogram
-    fig.add_trace(go.Histogram(x = data, name = 'Histogram', nbinsx = 100), row=1, col=1)
-    # 1. Boxplot 
-    fig.add_trace(go.Scatter(x = data.index , y = data, mode = 'lines', name = 'lineplot',
-                             customdata = df['Name'],
-                             hovertemplate="<b>%{customdata}</b><br><br>" +
-                                            "Date: %{x|%d %b %Y} <br>" +
-                                            "Logged Closing Price: %{y:$,.0f}<br>"+
-                                            "<extra></extra>"), row=2, col=1)
-    fig.update_layout({'title': {'text':'Plots of {} logged price'.format(crypto_name)}})
-
-    fig.show()
-
 
 
 # =============================================================================
@@ -801,7 +783,7 @@ def training_and_test_plot():
     trace1 = go.Scatter(
         x = df_train.index,
         y = df_train['Close'],
-        customdata = df['Name'],
+        customdata = df_train['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
         "Closing Price: %{y:$,.2f}<br>"+
@@ -812,7 +794,7 @@ def training_and_test_plot():
         x = df_test.index,
         y = df_test['Close'],
         name = 'Test Set',
-        customdata = df['Name'],
+        customdata = df_test['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
         "Closing Price: %{y:$,.2f}<br>"+
@@ -941,37 +923,37 @@ def rolling_mean_std(timeseries, freq):
 #adfuller_test(monthly_y['log_Close_diff'])
 #rolling_mean_std(monthly_y['log_Close_diff'], 365)
 
-# =============================================================================
-# Boxplots of Returns with PLOTLY
-# =============================================================================
-def box_year():
-    fig = go.Figure()
-
-    
-    fig.add_trace(go.Box(x = df.index.year, y = df['daily_return'],
-                         customdata = df['Name'],
-                            hovertemplate="<b>%{customdata}</b><br><br>" +
-                                    "Date: %{x|%d %b %Y} <br>" +
-                                    "Daily Return: %{y:.0%}<br>"+
-                                    "<extra></extra>"))
-
-    fig.update_layout(
-        title = 'Daily Returns of {}'.format(crypto_name),
-        yaxis_title = '% Change',
-    yaxis_tickformat = ',.0%')
-    fig.show()
-
-box_year()
+## =============================================================================
+## Boxplots of Returns with PLOTLY
+## =============================================================================
+#def box_year():
+#    fig = go.Figure()
+#
+#    
+#    fig.add_trace(go.Box(x = df.index.year, y = df['daily_return'],
+#                         customdata = df['Name'],
+#                            hovertemplate="<b>%{customdata}</b><br><br>" +
+#                                    "Date: %{x|%d %b %Y} <br>" +
+#                                    "Daily Return: %{y:.0%}<br>"+
+#                                    "<extra></extra>"))
+#
+#    fig.update_layout(
+#        title = 'Daily Returns of {}'.format(crypto_name),
+#        yaxis_title = '% Change',
+#    yaxis_tickformat = ',.0%')
+#    fig.show()
+#
+#box_year()
 
 # =============================================================================
 # Decomposition with PLOTLY PACKAGE!
 # =============================================================================
 
-def decomposition(data, freq):
+def decomposition(data, period):
 
     
-    decomposition = sm.tsa.seasonal_decompose(data, model='additive', period = freq)
-    
+    decomposition = sm.tsa.seasonal_decompose(data, period=period)
+
     #seasonality
     decomp_seasonal = decomposition.seasonal
 
@@ -981,7 +963,8 @@ def decomposition(data, freq):
     #residual
     decomp_resid = decomposition.resid
 
-    fig = make_subplots(rows=4, cols=1, shared_xaxes=False, subplot_titles=[
+
+    fig = make_subplots(rows=4, cols=1, shared_xaxes=True, subplot_titles=[
             'Price  of {}'.format(str(crypto_name)),
             'Trend values of {}'.format(str(crypto_name)),
             'Seasonal values of {}'.format(str(crypto_name)),
@@ -990,38 +973,34 @@ def decomposition(data, freq):
 
     fig.add_trace(go.Scatter(x = df.index,
                             y = data,
-                            name = crypto_name, 
+                            name = crypto_name,
                             mode='lines'),row = 1, col = 1)
 
 
     fig.add_trace(go.Scatter(x = df.index,
                             y = decomp_trend,
-                            name = 'Trend', 
+                            name = 'Trend',
                             mode='lines'),row = 2, col = 1)
 
 
     fig.add_trace(go.Scatter(x = df.index,
                             y = decomp_seasonal,
-                            name = 'Seasonality', 
+                            name = 'Seasonality',
                             mode='lines'),row = 3, col = 1)
 
     fig.add_trace(go.Scatter(x = df.index,
                             y = decomp_resid,
-                            name = 'Residual', 
+                            name = 'Residual',
                             mode='lines'),row = 4, col = 1)
 
     # Add titles
-    fig.update_layout( 
-            title = 'Decomposition of {}'.format(str(crypto_name)))
+    fig.update_layout(
+            title = 'Decomposition of {} for {} days'.format(str(crypto_name),period))
     fig['layout']['yaxis1']['title']='US Dollars'
     fig['layout']['yaxis2']['title']='Trend'
     fig['layout']['yaxis3']['title']='Seasonality'
     fig['layout']['yaxis4']['title']='Residual'
-
-    fig.update_yaxes(tickprefix = '$', tickformat = ',.', row = 1, col = 1)
-    fig.update_yaxes(tickformat = ',.', row = 2, col = 1)
-    fig.update_yaxes(tickformat = ',.', row = 3, col = 1)
-    fig.update_yaxes(tickformat = ',.', row = 4, col = 1)
+    fig.update_layout(showlegend=False)
 
     fig.show()
 
@@ -1053,47 +1032,56 @@ def predict_prophet_components():
     
 def predict_prophet_plotly():
     
-    trace1 = go.Scatter(
+    crypto = df_train[['Close', 'Name']]
+    crypto = crypto.reset_index()
+    crypto = crypto.rename(columns={'Date': 'ds', 'Close': 'y'})
+    df_prophet = Prophet(changepoint_prior_scale=0.15,yearly_seasonality=True,daily_seasonality=True)
+    df_prophet.fit(crypto)
+
+    df_forecast = df_prophet.make_future_dataframe(periods= len(df_test), freq='D')
+
+    df_forecast = df_prophet.predict(df_forecast)
+    df_forecast['Name'] = df_test['Name']
+    df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
+    return df_forecast
+
+def prophet_prediction_plot(request, df_forecast, df_train, df_test, crypto_name):
+    df_train = go.Scatter(
         x = df_train.index,
         y = df_train['Close'],
-        customdata = df['Name'],
+        customdata = df_train['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>",
+        "Closing Price: %{y:$,.2f}<br>",
         name = 'Training Set')
-    
-    trace2 = go.Scatter(
+
+    df_test = go.Scatter(
         x = df_test.index,
         y = df_test['Close'],
         name = 'Test Set',
-        customdata = df['Name'],
+        customdata = df_test['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
         "Date: %{x|%d %b %Y} <br>" +
-        "Closing Price: %{y:$,.2f}<br>"+
-        "<extra></extra>",
+        "Closing Price: %{y:$,.2f}<br>",
         yaxis="y1")
-    
+
     trend = go.Scatter(
-        name = 'trend',
+        name = 'Trend',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat']),
-        customdata = df_forecast['Name'], 
+        customdata = df_forecast['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
                         "Trend: %{y:$,.2f}<br>",
-        marker=dict(
-            color='red',
-            line=dict(width=3)
-        )
+        marker=dict(color='red', line=dict(width=3))
     )
     upper_band = go.Scatter(
-        name = 'upper band',
+        name = 'Upper Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_upper']),
-        customdata = df_forecast['Name'], 
+        customdata = df_forecast['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
                         "Upper Band: %{y:$,.2f}<br>",
@@ -1101,21 +1089,21 @@ def predict_prophet_plotly():
         fill = 'tonexty'
     )
     lower_band = go.Scatter(
-        name= 'lower band',
+        name= 'Lower Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_lower']),
-        customdata = df_forecast['Name'], 
+        customdata = df_forecast['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
                         "Lower Band: %{y:$,.2f}<br>",
         line= dict(color='#57b88f')
        )
-       
-       
-    data = [trace1, trace2, trend, lower_band, upper_band]
-    
-    layout = dict(title='{} Price Forecasting Estimation Using FbProphet'.format(crypto_name),
+
+
+    data = [df_train, df_test, trend, lower_band, upper_band]
+
+    layout = dict(title='Predicting Closing Price of {} Using FbProphet'.format(crypto_name),
                  xaxis=dict(title = 'Dates', ticklen=2, zeroline=True))
 
     fig = go.Figure(data = data, layout=layout)
@@ -1125,19 +1113,21 @@ def predict_prophet_plotly():
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     fig.update_layout(xaxis_rangeslider_visible = False)
     fig.update_yaxes(tickprefix = '$', tickformat = ',.')
-    
 
-    fig.update_layout(showlegend=False)  
+
+    fig.update_layout(showlegend=False)
+    
     fig.show()
 
 
@@ -1168,62 +1158,69 @@ def forecast_prophet_components():
 
 
 def forecast_prophet_plotly():
-    trace = go.Scatter(
-        name = 'Actual price',
-        mode = 'markers',
-        x = list(df_forecast['ds']),
-        y = list(crypto['y']),
-        customdata = crypto['Name'],
+    crypto = df[['Close', 'Name']]
+    crypto = crypto.reset_index()
+    crypto = crypto.rename(columns={'Date': 'ds', 'Close': 'y'})
+    df_prophet = Prophet(changepoint_prior_scale=0.15,yearly_seasonality=True,daily_seasonality=True)
+    df_prophet.fit(crypto)
+
+    df_forecast = df_prophet.make_future_dataframe(periods= 120, freq='D')
+
+    df_forecast = df_prophet.predict(df_forecast)
+    df_forecast['Name'] = crypto['Name']
+    df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
+
+    actual = go.Scatter(
+        x = df.index,
+        y = df['Close'],
+        customdata = df['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
-                        "Date: %{x|%d %b %Y} <br>" +
-                        "Actual Closing Price: %{y:$,.2f}<br>",
-        marker=dict(
-            color='#FFBAD2',
-            line=dict(width=1)
+        "Date: %{x|%d %b %Y} <br>" +
+        "Closing Price: %{y:$,.2f}<br>",
+        name = 'Actual Price',
+        marker = dict(line = dict(width=1))
         )
-    )
-    trace1 = go.Scatter(
-        name = 'trend',
+
+    trend = go.Scatter(
+        name = 'Trend',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat']),
-        customdata = df_forecast['Name'], 
+        customdata = df_forecast['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
                         "Trend: %{y:$,.2f}<br>",
-        marker=dict(
-            color='red',
-            line=dict(width=3)
-        )
+        marker=dict(color='red', line=dict(width=3))
     )
+
     upper_band = go.Scatter(
-        name = 'upper band',
+        name = 'Upper Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_upper']),
-        customdata = df_forecast['Name'], 
+        customdata = df_forecast['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
                         "Upper Band: %{y:$,.2f}<br>",
         line= dict(color='#57b88f'),
         fill = 'tonexty'
     )
+
     lower_band = go.Scatter(
-        name= 'lower band',
+        name= 'Lower Band',
         mode = 'lines',
         x = list(df_forecast['ds']),
         y = list(df_forecast['yhat_lower']),
-        customdata = df_forecast['Name'], 
+        customdata = df_forecast['Name'],
         hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
                         "Lower Band: %{y:$,.2f}<br>",
         line= dict(color='#57b88f')
        )
-       
-       
-    data = [trace1, lower_band, upper_band, trace]
-    
-    layout = dict(title='{} Price Forecasting Estimation Using FbProphet'.format(crypto_name),
+
+    data = [trend, lower_band, upper_band, actual]
+
+    layout = dict(title='Forecasting Closing Price of {} Using FbProphet'.format(crypto_name),
                  xaxis=dict(title = 'Dates', ticklen=2, zeroline=True))
 
     fig = go.Figure(data = data, layout=layout)
@@ -1233,17 +1230,18 @@ def forecast_prophet_plotly():
         rangeslider_visible = True,
         rangeselector = dict(
             buttons = list([
-                dict(count = 7, label = "1W", step = "day", stepmode = "backward"),
-                dict(count = 28, label = "1M", step = "day", stepmode = "backward"),
-                dict(count = 6, label = "6M", step = "month", stepmode = "backward"),
-                dict(count = 1, label = "YTD", step = "year", stepmode = "todate"),
-                dict(count = 1, label = "1Y", step = "year", stepmode = "backward"),
-                dict(count = 3, label = "3Y", step = "year", stepmode = "backward"),
-                dict(count = 5, label = "5Y", step = "year", stepmode = "backward"),
-                dict(step = "all")])))
+                            dict(count = 7, step = "day", stepmode = "backward", label = "1W"),
+                            dict(count = 1, step = "month", stepmode = "backward", label = "1M"),
+                            dict(count = 3, step = "month", stepmode = "backward", label = "3M"),
+                            dict(count = 6, step = "month", stepmode = "backward", label = "6M"),
+                            dict(count = 1, step = "year", stepmode = "backward", label = "1Y"),
+                            dict(count = 2, step = "year", stepmode = "backward", label = "2Y"),
+                            dict(count = 5, step = "year", stepmode = "backward", label = "5Y"),
+                            dict(count = 1, step = "all", stepmode = "backward", label = "MAX"),
+                            dict(count = 1, step = "year", stepmode = "todate", label = "YTD")])))
     fig.update_layout(xaxis_rangeslider_visible = False)
     fig.update_yaxes(tickprefix = '$', tickformat = ',.')
-    
 
-    fig.update_layout(showlegend=False)  
+    fig.update_layout(showlegend=False)
+
     fig.show()
