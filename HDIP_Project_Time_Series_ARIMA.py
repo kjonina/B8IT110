@@ -178,10 +178,6 @@ def evaluate_forecast(y,pred):
 evaluate_forecast(df_test.Close,fcast.mean_se)
 
 
-'{:.10f}'.format(mean_absolute_error(df_test['Close'], fcast['mean_se']))  
-
-
-
 
 # =============================================================================
 # EXACTLY LIKE ABOVE BUT DOES NOT DO ANYTHING
@@ -194,15 +190,15 @@ from math import sqrt
     
 def run_ARIMA_model():
     # fit model
-model = ARIMA(y['log_Close_diff'], order=(4, 1, 4))
-results = model.fit()
+    model = ARIMA(y['log_Close_diff'], order=(4, 1, 4))
+    results = model.fit()
+    
+    results.fittedvalues
+    
+    print (results.summary())
 
-results.fittedvalues
-
-print (results.summary())
-
-plt.plot(y['log_Close_diff'])
-plt.plot(results.fittedvalues, color='red')
+    plt.plot(y['log_Close_diff'])
+    plt.plot(results.fittedvalues, color='red')
     plt.title('RSS: %.4f'% np.nansum((results.fittedvalues-y['log_Close_diff'])**2))
     plt.show()
     
@@ -371,10 +367,6 @@ def ARIMA_forecasting_dftest_with_Close():
     plt.show()
 
 
-"""
-Maybr Try SAMIRAX with  exog = df['Volume']
-
-"""
 
 # =============================================================================
 # FORECASTING!

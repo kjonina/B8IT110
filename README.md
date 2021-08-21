@@ -176,3 +176,14 @@ Nothing ground-breaking really.
 - After much arguing, I managed to get the set up finished and get the domain for karinajonina.com 
 - hopefully the two will be connected within the 24 hours.
 - Solved issue with settings in github by creating new settings within digital ocean
+
+
+## 21st August 
+##### Prophet
+- connected to the domain
+- fixed a few rangeselectors on graphs
+- changed maplotlib graph in ACF and PACF to display correctly online
+- changed the second input to slider and connected it to the period variable
+
+##### Digital Ocean - Issues
+- cant get prophet to install on Digital Ocean. I think that is because pip install pystan installs pystan 3.1 while fbProphet works on pystan 2.18

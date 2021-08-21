@@ -297,7 +297,7 @@ def candlestick_moving_average():
             x = df.index,
             y = df["Close"].rolling(i).mean(), # Pandas SMA
             name = "SMA" + str(i),
-            line = dict(color = "#3E86AB"),
+            line = dict(color = "#3E86AB",width=3),
             customdata = df['Name'],
             hovertemplate="<b>%{customdata}</b><br><br>" +
                         "Date: %{x|%d %b %Y} <br>" +
