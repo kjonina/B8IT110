@@ -30,6 +30,7 @@ import plotly.graph_objects as go
 import statsmodels.api as sm
 from pylab import rcParams
 import statsmodels.api as sm
+from statsmodels.tsa.arima_model import ARIMA
 
 
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -96,7 +97,7 @@ create_train_and_test()
 # =============================================================================
 
 
-
+from statsmodels.tsa.ar.model import AR
 
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, median_absolute_error, mean_squared_log_error
 
@@ -190,7 +191,7 @@ from math import sqrt
     
 def run_ARIMA_model():
     # fit model
-    model = ARIMA(y['log_Close_diff'], order=(4, 1, 4))
+    model = ARIMA(y['log_Close_diff'], order=(1, 0, 1))
     results = model.fit()
     
     results.fittedvalues
@@ -249,60 +250,6 @@ run_ARIMA_model()
 # ARIMA MODEL
 # =============================================================================
 
-from statsmodels.tsa.arima.model import ARIMA
-from sklearn.metrics import mean_squared_error
-from math import sqrt
-    
-def ARIMA_forecasting_dftest_with_log_Close_diff():
-    # fit model
-    model = ARIMA(df_train['log_Close_diff'], order=(6, 1, 1))
-    model_fit = model.fit()
-    print(model_fit.summary())
-    
-    start_index = df_test.index.min()
-    end_index = df_test.index.max()
-    
-    #Predictions
-    predictions = model_fit.predict(steps=219, dynamic = True)
-        
-#    # Confidence level of 90%
-#    predictions = forecast.summary_frame(alpha=0.10) 
-#    print('============================================================')
-#    print('Forecast')
-#    print('============================================================')
-#    print(predictions.tail())    
-
-
-    predictions_ARIMA_diff = pd.Series(predictions, copy=True)
-    print('============================================================')
-    print('predictions_ARIMA_diff')
-    print('============================================================')
-    print (predictions_ARIMA_diff.head())
-    
-    
-    predictions_ARIMA_diff_cumsum = predictions_ARIMA_diff.cumsum()
-    print (predictions_ARIMA_diff_cumsum.head())
-    print('============================================================')
-    print('predictions_ARIMA_diff_cumsum')
-    print('============================================================')
-    print (predictions_ARIMA_diff_cumsum.tail())    
-    
-    
-    
-    predictions_ARIMA_log = pd.Series(df_test.Close.iloc[0], index=df_test.index)
-    predictions_ARIMA_log = predictions_ARIMA_log.add(predictions_ARIMA_diff_cumsum,fill_value=0)
-    predictions_ARIMA_log.head()
-    print('============================================================')
-    print('predictions_ARIMA_log')
-    print('============================================================')
-    print (predictions_ARIMA_log.tail())
-    
-    
-    predictions_ARIMA = np.exp(predictions_ARIMA_log)
-    print('============================================================')
-    print('predictions_ARIMA')
-    print('============================================================')
-    print (predictions_ARIMA.tail())
         
     plt.plot(y.Close)
     plt.plot(predictions_ARIMA_log)
@@ -311,7 +258,6 @@ def ARIMA_forecasting_dftest_with_log_Close_diff():
     
     model_fit.plot_diagnostics()
     plt.show()
-
 
 # =============================================================================
 #  DATACAMP CODE
@@ -365,6 +311,9 @@ def ARIMA_forecasting_dftest_with_Close():
     plt.ylabel('{} Stock Price - Close USD'.format(str(crypto_name)))
     plt.legend()
     plt.show()
+    
+
+ARIMA_forecasting_dftest_with_Close()
 
 
 

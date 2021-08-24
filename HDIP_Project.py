@@ -28,6 +28,14 @@ from statsmodels.tsa.stattools import pacf
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.arima_model import ARMA
 import plotly.graph_objects as go
+import re
+import json
+import requests 
+import codecs
+from bs4 import BeautifulSoup
+import pandas as pd
+from pandas.io.json import json_normalize
+
 
 import statsmodels.api as sm
 from pylab import rcParams
@@ -40,9 +48,14 @@ from HDIP_Project_Functions import *
 pio.renderers.default = 'browser'
 
 # =============================================================================
+# Getting the Yahoo Table with Beautiful Soup
+# =============================================================================
+get_yahoo_table()
+
+# =============================================================================
 # creating a list from the crypto-table
 # =============================================================================      
-get_crypto_df(df_cryptolist)
+get_crypto_df()
      
 # ============================================================================
 # Asking the user for an input   
@@ -90,6 +103,8 @@ test_stationarity(y['Close Percentage Change'])
 # splitting the data 
 create_train_and_test()
 
+from HDIP_Project_Functions import *
+
 # creating a plot for the training and test set
 training_and_test_plot()
 
@@ -99,6 +114,18 @@ training_and_test_plot()
 create_diff_volume(y['diff'])
 
 create_diff_log_diff()
+
+# =============================================================================
+# Techniques to remove Trend 
+# =============================================================================
+# Not Stationary
+smoothing_with_moving_averages_method()
+
+# Not Stationary
+exponentian_with_moving_averages_method()
+
+# STATIONARY - difference is the best method
+differencing_method()
 
 # =============================================================================
 # Examining CLOSE
@@ -139,6 +166,7 @@ acf_and_pacf_plots(y['log_Close_diff'])
 KPSS_test(y['log_Close_diff'])
 adfuller_test(y['log_Close_diff'])
 rolling_mean_std(y['log_Close_diff'], 365)
+
 
 
 # =============================================================================

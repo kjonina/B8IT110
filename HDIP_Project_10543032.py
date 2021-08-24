@@ -1016,136 +1016,8 @@ def rolling_mean_std(timeseries, freq):
 #box_year()
 
 # =============================================================================
-# Techniques to remove Trend 
-# =============================================================================
-# smoothing 
-def smoothing_with_moving_averages_method():
-    global ts_log
-    global moving_avg
-    global ts_log_moving_avg_diff
-    
-    ts_log = np.log(y['Close'])
-    plt.plot(ts_log, color = 'blue')
-    moving_avg = ts_log.rolling(window=365).mean()
-    plt.plot(ts_log)
-    plt.plot(moving_avg, color='red')
-    plt.legend(loc='best')
-    plt.title('Rolling Mean & Standard Deviation')
-    plt.show(block=False)
- 
-    
-    ts_log_moving_avg_diff = ts_log - moving_avg
-    ts_log_moving_avg_diff.head(15)
-    ts_log_moving_avg_diff.dropna(inplace=True)
-    
-    #Determing rolling statistics
-    rolmean = ts_log_moving_avg_diff.rolling(window=365).mean()
-    rolstd = ts_log_moving_avg_diff.rolling(window=365).std()
-
-    #Plot rolling statistics:
-    orig = plt.plot(ts_log_moving_avg_diff, color='green',label='Original')
-    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
-    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
-    plt.legend(loc='best')
-    plt.title('Rolling Mean & Standard Deviation')
-    plt.show(block=False)
-    
-    #Perform Dickey-Fuller test:
-    print ('Results of Dickey-Fuller Test:')
-    dftest = adfuller(ts_log_moving_avg_diff, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print (dfoutput)
-    
-    
-      
-    if dftest[1]>0.05:
-        print('Conclude not stationary')
-    else:
-        print('Conclude stationary') 
-
-# Exponentian method
-def exponentian_with_moving_averages_method():
-    expwighted_avg=ts_log.ewm(span=365).mean()
-    plt.plot(ts_log, color = 'green')
-    plt.plot(expwighted_avg, color='red')
-    plt.legend(loc='best')
-    plt.title('Exponential Method with Moving Averages')
-    plt.show(block=False)
-    plt.clf()
-    
-    ts_log.ewm(span=365).mean()
-    ts_log_ewma_diff = ts_log - expwighted_avg
-
-    #Determing rolling statistics
-    rolmean = ts_log_ewma_diff.rolling(window=365).mean()
-    rolstd = ts_log_ewma_diff.rolling(window=365).std()
-    
-    
-    #Plot rolling statistics:
-    orig = plt.plot(ts_log_ewma_diff, color='green',label='Original')
-    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
-    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
-    plt.legend(loc='best')
-    plt.title('Rolling Mean & Standard Deviation')
-    plt.show(block=False)
-    
-    #Perform Dickey-Fuller test:
-    print ('Results of Dickey-Fuller Test:')
-    dftest = adfuller(ts_log_ewma_diff, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print (dfoutput)
-    
-    
-      
-    if dftest[1]>0.05:
-        print('Conclude not stationary')
-    else:
-        print('Conclude stationary') 
-
-
-
-def differencing_method():
-    
-    ts_log_diff = ts_log - ts_log.shift()
-    plt.plot(ts_log_diff, color = 'green')
-    ts_log_diff.dropna(inplace=True)
-    
-    plt.clf()
-    #Determing rolling statistics
-    rolmean = ts_log_diff.rolling(window=365).mean()
-    rolstd = ts_log_diff.rolling(window=365).std()
-    
-    
-    #Plot rolling statistics:
-    orig = plt.plot(ts_log_diff, color='green',label='Original')
-    mean = plt.plot(rolmean, color='red', label='Rolling Mean')
-    std = plt.plot(rolstd, color='black', label = 'Rolling Std')
-    plt.legend(loc='best')
-    plt.title('Rolling Mean & Standard Deviation')
-    plt.show(block=False)
-    
-    #Perform Dickey-Fuller test:
-    print ('Results of Dickey-Fuller Test:')
-    dftest = adfuller(ts_log_diff, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print (dfoutput)
-    
-      
-    if dftest[1]>0.05:
-        print('Conclude not stationary')
-    else:
-        print('Conclude stationary') 
-
-# =============================================================================
 # Decomposition with PLOTLY PACKAGE!
 # =============================================================================
-
 def decomposition(data, period):
 
     
@@ -1442,3 +1314,132 @@ def forecast_prophet_plotly():
     fig.update_layout(showlegend=False)
 
     fig.show()
+
+
+
+# =============================================================================
+# Getting the Yahoo Table with Beautiful Soup
+# =============================================================================
+get_yahoo_table()
+
+# =============================================================================
+# creating a list from the crypto-table
+# =============================================================================      
+get_crypto_df()
+     
+# ============================================================================
+# Asking the user for an input   
+# ============================================================================
+please_choose_crypto()
+
+from HDIP_Project_Functions import crypto_name, insert
+
+# =============================================================================
+# Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
+# =============================================================================
+create_df(insert)
+
+create_y(insert)
+
+from HDIP_Project_Functions import *
+
+# =============================================================================
+# Creating a graph examining the price and moving averages
+# =============================================================================
+price_sma_volume_chart()
+
+candlestick_moving_average()
+
+# =============================================================================
+# Analysing the Histogram and Boxplot for crypto
+# =============================================================================
+
+create_hist_and_box_pct_change()
+
+logged_create_hist_and_box_pct_change()
+
+
+# =============================================================================
+# Creating a plot with analysis and rolling mean and standard deviation
+# =============================================================================
+test_stationarity(df['Close'])
+
+test_stationarity(y['Close Percentage Change'])
+
+
+# =============================================================================
+# Splitting the data in Training and Test Data
+# =============================================================================
+# splitting the data 
+create_train_and_test()
+
+from HDIP_Project_Functions import *
+
+# creating a plot for the training and test set
+training_and_test_plot()
+
+# =============================================================================
+# 
+# =============================================================================
+create_diff_volume(y['diff'])
+
+create_diff_log_diff()
+
+# =============================================================================
+# Examining CLOSE
+# =============================================================================
+
+simple_seasonal_decompose(y['Close'], 365)
+acf_and_pacf_plots(y['Close'])
+KPSS_test(y['Close'])
+adfuller_test(y['Close'])
+rolling_mean_std(y['Close'], 365)
+
+# =============================================================================
+# Examining LOG CLOSE
+# =============================================================================
+
+simple_seasonal_decompose(y['log_Close'], 365)
+acf_and_pacf_plots(y['log_Close'])
+KPSS_test(y['log_Close'])
+adfuller_test(y['log_Close'])
+rolling_mean_std(y['log_Close'], 365)
+
+# =============================================================================
+# Examining DIFF - STATIONARY
+# =============================================================================
+
+simple_seasonal_decompose(y['diff'], 365)
+acf_and_pacf_plots(y['diff'])
+KPSS_test(y['diff'])
+adfuller_test(y['diff'])
+rolling_mean_std(y['diff'], 365)
+
+# =============================================================================
+# Examining LOG CLOSE DIFF - STATIONARY
+# =============================================================================
+
+simple_seasonal_decompose(y['log_Close_diff'], 365)
+acf_and_pacf_plots(y['log_Close_diff'])
+KPSS_test(y['log_Close_diff'])
+adfuller_test(y['log_Close_diff'])
+rolling_mean_std(y['log_Close_diff'], 365)
+
+
+# =============================================================================
+# Plotly 
+# =============================================================================
+decomposition(df['Close'], 365)
+
+# =============================================================================
+# Predicing and Forecasting the Closing Price with FBProphet 
+# =============================================================================
+# predicting price using FBProphet 
+predict_prophet()
+predict_prophet_components()
+predict_prophet_plotly()
+
+#Forecasting price using FBProphet 
+forecast_prophet()
+forecast_prophet_components()
+forecast_prophet_plotly()

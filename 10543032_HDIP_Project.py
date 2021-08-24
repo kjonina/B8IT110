@@ -6,12 +6,10 @@ Module:         B8IT110
 Module Name:    HDIP PROJECT
 
 Task:           Time Series Forecasting of Cryptocurrency
-File:           This file is for functions to run the 
+File:           This file is created to run functions with create dataframes, graphs, and test 
 """
 
 # Downloading necessary files
-
-
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -43,16 +41,16 @@ import codecs
 from bs4 import BeautifulSoup
 import pandas as pd
 from pandas.io.json import json_normalize
+from fbprophet import Prophet
+from statsmodels.tsa.arima_model import ARIMA
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, median_absolute_error, mean_squared_log_error
+from math import sqrt
+
 
 
 # display plotly in browser when run in Spyder
 pio.renderers.default = 'browser'
 
-## =============================================================================
-## Reading in files for ease of use
-## =============================================================================
-## read the CSV file
-#df_cryptolist = pd.read_csv('df_cryptolist.csv')
 
 # =============================================================================
 # Getting Yahoo Table
@@ -188,6 +186,26 @@ def create_df(x):
     df = yf.download(x, start, end,interval = '1d')
     df = pd.DataFrame(df.dropna(), columns = ['Open', 'High','Low','Close', 'Adj Close', 'Volume'])
 
+
+    # preparing data from time series analysis
+    # eliminating any NAs - in most cryptocurrencies there are 4 days missing
+    df.index = pd.to_datetime(df.index)
+    df = df.asfreq('D')
+
+    print('============================================================')
+    print('Nan in each columns before Backfill for' , crypto_name)
+    print('------------------------------------------------------------')  
+    print(df.isna().sum())
+    print('The df has {} rows and {} columns.'.format(*df.shape))
+    
+    df = df.bfill()
+    print('============================================================')
+    print('Nan in each columns after Backfill for' , crypto_name)
+    print('------------------------------------------------------------')  
+    print(df.isna().sum())
+    print('The df has {} rows and {} columns.'.format(*df.shape))
+#    df = df.dropna()
+    
     # Create short SMA
     df['short_SMA'] = df.iloc[:,1].rolling(window = short_sma).mean()
     
@@ -203,24 +221,21 @@ def create_df(x):
     # Create annual_return
     df['annual_return'] = df['Close'].pct_change(periods=365).mul(100)
     df['Name'] = crypto_name
-#    print('============================================================')
-#    print(crypto_name, '- Full Dataset')
-#    print('------------------------------------------------------------')
-#    print(df.head())
-#    print('------------------------------------------------------------')
-#    print(crypto_name, 'Full Dataset - Column Names')
-#    print(df.columns)
+
+    print('============================================================')
+    print(crypto_name, '- Full Dataset')
+    print('------------------------------------------------------------')
+    print(df.head())
+    print('------------------------------------------------------------')
+    print(crypto_name, 'Full Dataset - Column Names')
+    print(df.columns)
+
+    print('============================================================')
+    print('Nan in each columns after Backfill for' , crypto_name)
+    print('------------------------------------------------------------')  
+    print(df.isna().sum())
     print('============================================================')
     
-    # preparing data from time series analysis
-    # eliminating any NAs - in most cryptocurrencies there are 4 days missing
-    df.index = pd.to_datetime(df.index)
-    df = df.asfreq('D')
-    print(crypto_name)
-    print('Nan in each columns' , df.isna().sum())
-    df = df.bfill()
-    print('Nan in each columns' , df.isna().sum())
-    df = df.dropna()
 
 #    # write to csv
 #    df.to_csv(r"df.csv", index =  True)
@@ -267,6 +282,50 @@ def create_y(x):
     print('Column Names')
     print(y.columns)
     print('============================================================')
+    
+# =============================================================================
+# Simple Graph that was placed into Django to insure the code works
+# =============================================================================
+
+# the graph needs formatting
+def create_simple_graph_in_Django(df):
+    # Closing price in the last 50 days
+    close = np.array(df['Close'].tail(50))
+    
+    # Date for the last 50 days
+    date = ['2014-09-17', '2014-09-18', '2014-09-19', '2014-09-20',
+       '2014-09-21', '2014-09-22', '2014-09-23', '2014-09-24',
+       '2014-09-25', '2014-09-26', '2014-09-27', '2014-09-28',
+       '2014-09-29', '2014-09-30', '2014-10-01', '2014-10-02',
+       '2014-10-03', '2014-10-04', '2014-10-05', '2014-10-06',
+       '2014-10-07', '2014-10-08', '2014-10-09', '2014-10-10',
+       '2014-10-11', '2014-10-12', '2014-10-13', '2014-10-14',
+       '2014-10-15', '2014-10-16', '2014-10-17', '2014-10-18',
+       '2014-10-19', '2014-10-20', '2014-10-21', '2014-10-22',
+       '2014-10-23', '2014-10-24', '2014-10-25', '2014-10-26',
+       '2014-10-27', '2014-10-28', '2014-10-29', '2014-10-30',
+       '2014-10-31', '2014-11-01', '2014-11-02', '2014-11-03',
+       '2014-11-04', '2014-11-05']
+
+    # Volume for the last 50 days    
+    volume = np.array(df['Volume'].tail(50))
+    
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True)
+    # Lineplots of price and moving averages
+    fig.add_trace(go.Scatter(
+                            x = date,
+                            y = close,
+                            mode='lines'), row = 1, col = 1)
+
+    # Barplot of volume
+    fig.add_trace(go.Bar(x = date,
+                    y = volume), row = 2, col = 1)
+    
+    fig.show()
+    
+#    graph_html = fig.to_html(full_html=False, default_height=500, default_width=700)
+#    ## testing the HTML
+#    #print(graph_html)
 
 # =============================================================================
 # Creating a graph examining the price and moving averages
@@ -317,10 +376,12 @@ def price_sma_volume_chart():
                                     "Volume: %{y:,.}<br>" +
                                     "<extra></extra>",
                     marker = dict(color="black", opacity = True)), row = 2, col = 1)
-    # Add titles
+    # Add title
     fig.update_layout(
             title = 'Summary of {}'.format(str(crypto_name)),
             title_font_size=30)
+    
+    
     fig['layout']['yaxis1']['title']='US Dollars'
     fig['layout']['yaxis2']['title']='Volume'
     # X-Axes
@@ -413,7 +474,8 @@ def candlestick_moving_average():
 
     layout = dict(
 
-        title = 'Price of {}'.format(str(crypto_name)),
+        title = 'Price of {}'.format(str(crypto_name),
+            title_font_size=30),
 
         # ANIMATIONS
         sliders = [sliders],
@@ -549,7 +611,7 @@ def test_stationarity(timeseries):
                                 y = timeseries,
                                 name = 'Original', 
                                 mode='lines',
-                                customdata = timeseries['Name'],
+                                customdata = y['Name'],
                                 hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Closing Price: %{y:$,.2f}<br>" +
@@ -559,7 +621,7 @@ def test_stationarity(timeseries):
                                 y = rolmean,
                                 name = 'Rolling Mean', 
                                 mode='lines',
-                                customdata = timeseries['Name'],
+                                customdata = y['Name'],
                                 hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Rolling Mean Price: %{y:$,.2f}<br>" +
@@ -634,7 +696,7 @@ def create_diff_volume(data):
                             y = data,
                             name = str(crypto_name), 
                             mode='lines',
-                            customdata = data['Name'],
+                            customdata = df['Name'],
                             hovertemplate="<b>%{customdata}</b><br><br>" +
                                     "Date: %{x|%d %b %Y} <br>" +
                                     "Price Volatility: %{y:$,.2f}<br>"+
@@ -828,25 +890,48 @@ def returns():
 # =============================================================================
 # Splitting the data in Training and Test Data
 # =============================================================================
-def create_train_and_test():
+#def create_train_and_test():
+#    global df_train 
+#    global df_test
+#    # Train data - 90%
+#    df_train = y[:int(0.90*(len(y)))]
+#    
+#    print('============================================================')
+#    print('{} Training Set'.format(crypto_name))
+#    print('============================================================')
+#    print(df_train.head())
+#    print('Training set has {} rows and {} columns.'.format(*df_train.shape))
+#    # Test data - 90%
+#    df_test = y[int(0.90*(len(y))):]
+#    print('============================================================')
+#    print('{} Test Set'.format(crypto_name))
+#    print('============================================================')
+#    print(df_test.head())
+#    print('Test set has {} rows and {} columns.'.format(*df_test.shape))
+   
+def create_train_and_test_period():
+    
     global df_train 
     global df_test
-    # Train data - 80%
-    df_train = y[:int(0.80*(len(y)))]
-    
+    test_period= int(input('Please select the number for days to be used in the validation period: '))
+
+    # Train data 
+    df_train = y[:-test_period]
     print('============================================================')
     print('{} Training Set'.format(crypto_name))
     print('============================================================')
     print(df_train.head())
     print('Training set has {} rows and {} columns.'.format(*df_train.shape))
-    # Test data - 20%
-    df_test = y[int(0.80*(len(y))):]
+
+    # Test data 
+    df_test = y[-test_period:]
     print('============================================================')
     print('{} Test Set'.format(crypto_name))
     print('============================================================')
     print(df_test.head())
     print('Test set has {} rows and {} columns.'.format(*df_test.shape))
-    
+    return df_train, df_test
+
 
 def training_and_test_plot(): 
     # creating a plotly graph for training and test set
@@ -1201,8 +1286,212 @@ def decomposition(data, period):
 
     fig.show()
 
+# =============================================================================
+# ARIMA MODELS
+# =============================================================================
+    
+def run_ARIMA_model(p,d,q):
+    global predictions_ARIMA
+    # ARIMA fit model
+    model = ARIMA(y.log_Close_diff, order = (p,q,q))
+    model_fit = model.fit()
+    
+#    plt.plot(y.log_Close_diff)
+#    plt.plot(model_fit.fittedvalues, color='red')
+#    plt.title('RSS: %.4f'% np.nansum((model_fit.fittedvalues-y.log_Close_diff)**2))
+#    plt.show()   
+
+    trace1 = go.Scatter(
+        x = y.index,
+        y = y['log_Close_diff'],
+        name = 'Observed')
+    
+    trace2 = go.Scatter(
+        x = y.index,
+        y = model_fit.fittedvalues,
+        name = 'Predicted',
+        yaxis="y1")
+    
+    data = [trace1, trace2]
+    fig = go.Figure(data = data)
+    
+    rss = np.nansum((predictions_ARIMA-y['log_Close_diff'])**2)
+    
+    fig.update_layout({'title': {'text':'RSS: %.4f'% np.nansum((model_fit.fittedvalues-y.log_Close_diff)**2)}},
+                      yaxis_tickprefix = '$', yaxis_tickformat = ',.')
+    fig.show() 
+        
+    predictions_ARIMA_diff = pd.Series(model_fit.fittedvalues, copy=True)
+#    print (predictions_ARIMA_diff.head())  
+
+    # Cumulative Sum to reverse differencing:
+    predictions_ARIMA_diff_cumsum = predictions_ARIMA_diff.cumsum()
+#    print (predictions_ARIMA_diff_cumsum.head())
 
 
+    # Adding 1st month value which was previously removed while differencing:
+    predictions_ARIMA_log = pd.Series(y.log_Close.iloc[0], index=y.log_Close.index)
+    predictions_ARIMA_log = predictions_ARIMA_log.add(predictions_ARIMA_diff_cumsum,fill_value=0)
+#    print(predictions_ARIMA_log.head())
+    
+    predictions_ARIMA = np.exp(predictions_ARIMA_log)
+    print('=====================================')
+    print('Predicting with ARIMA - {}'.format(str(crypto_name)))
+    print('=====================================')
+    print(predictions_ARIMA)
+    
+#    plt.plot(y.Close)
+#    plt.plot(predictions_ARIMA)
+#    plt.title('RMSE: %.4f'% np.sqrt(np.nansum((predictions_ARIMA-y.log_Close_diff)**2)/len(y.log_Close_diff))) 
+
+    trace1 = go.Scatter(
+        x = y.index,
+        y = y['Close'],
+        customdata = y['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Observed Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        name = 'Observed')
+    
+    trace2 = go.Scatter(
+        x = predictions_ARIMA.index,
+        y = predictions_ARIMA,
+        name = 'Predicted',
+        customdata = y['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        yaxis="y1")
+    
+    data = [trace1, trace2]
+    fig = go.Figure(data = data)
+    
+    rss = np.sqrt(np.nansum((predictions_ARIMA-y.log_Close_diff)**2)/len(y.log_Close_diff))
+    
+    fig.update_layout({'title': {'text':'{} Price Forecasting Estimation Using ARIMA, RSS: {:.4f}%'.format(str(crypto_name), rss)}},
+                      yaxis_tickprefix = '$', yaxis_tickformat = ',.')
+    fig.show()
+    
+    
+
+    
+    
+def run_ARIMA_model_user_prompted():
+    
+    p =  int(input('What is your preferred number of lags based on ACF? '))
+    d =  int(input('What is your preferred number of differecing? '))
+    q =  int(input('Please select the number for lags based on PACF?  '))
+    global predictions_ARIMA
+    # ARIMA fit model
+    model = ARIMA(y.log_Close_diff, order = (p,d,q))
+    model_fit = model.fit()
+    
+#    plt.plot(y.log_Close_diff)
+#    plt.plot(model_fit.fittedvalues, color='red')
+#    plt.title('RSS: %.4f'% np.nansum((model_fit.fittedvalues-y.log_Close_diff)**2))
+#    plt.show()   
+
+    trace1 = go.Scatter(
+        x = y.index,
+        y = y['log_Close_diff'],
+        name = 'Observed')
+    
+    trace2 = go.Scatter(
+        x = y.index,
+        y = model_fit.fittedvalues,
+        name = 'Predicted',
+        yaxis="y1")
+    
+    data = [trace1, trace2]
+    fig = go.Figure(data = data)
+    
+    rss = np.nansum((predictions_ARIMA-y['log_Close_diff'])**2)
+    
+    fig.update_layout({'title': {'text':'RSS: %.4f'% np.nansum((model_fit.fittedvalues-y.log_Close_diff)**2)}},
+                      yaxis_tickprefix = '$', yaxis_tickformat = ',.')
+    fig.show()
+        
+    predictions_ARIMA_diff = pd.Series(model_fit.fittedvalues, copy=True)
+#    print (predictions_ARIMA_diff.head())  
+
+    # Cumulative Sum to reverse differencing:
+    predictions_ARIMA_diff_cumsum = predictions_ARIMA_diff.cumsum()
+#    print (predictions_ARIMA_diff_cumsum.head())
+
+
+    # Adding 1st month value which was previously removed while differencing:
+    predictions_ARIMA_log = pd.Series(y.log_Close.iloc[0], index=y.log_Close.index)
+    predictions_ARIMA_log = predictions_ARIMA_log.add(predictions_ARIMA_diff_cumsum,fill_value=0)
+#    print(predictions_ARIMA_log.head())
+    
+    predictions_ARIMA = np.exp(predictions_ARIMA_log)
+    print('=====================================')
+    print('Predicting with ARIMA - {}'.format(str(crypto_name)))
+    print('=====================================')
+    print(predictions_ARIMA)
+    
+#    plt.plot(y.Close)
+#    plt.plot(predictions_ARIMA)
+#    plt.title('RMSE: %.4f'% np.sqrt(np.nansum((predictions_ARIMA-y.log_Close_diff)**2)/len(y.log_Close_diff))) 
+    
+
+    trace1 = go.Scatter(
+        x = y.index,
+        y = y['Close'],
+        customdata = y['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Observed Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        name = 'Observed')
+    
+    trace2 = go.Scatter(
+        x = predictions_ARIMA.index,
+        y = predictions_ARIMA,
+        name = 'Predicted',
+        customdata = y['Name'],
+        hovertemplate="<b>%{customdata}</b><br><br>" +
+        "Date: %{x|%d %b %Y} <br>" +
+        "Predicted Closing Price: %{y:$,.2f}<br>"+
+        "<extra></extra>",
+        yaxis="y1")
+    
+    data = [trace1, trace2]
+    fig = go.Figure(data = data)
+    
+    rss = np.sqrt(np.nansum((predictions_ARIMA-y.log_Close_diff)**2)/len(y.log_Close_diff))
+    
+    fig.update_layout({'title': {'text':'{} Price Forecasting Estimation Using ARIMA, RSS: {:.4f}%'.format(str(crypto_name), rss)}},
+                      yaxis_tickprefix = '$', yaxis_tickformat = ',.')
+    fig.show()
+    
+    
+# =============================================================================
+# Evaluation of ARIMA models
+# =============================================================================
+def mean_absolute_percentage_error(y_true, y_pred): 
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
+def evaluate_forecast(y,pred):
+    global results
+    results = pd.DataFrame({'r2_score':r2_score(y, pred),
+                           }, index=[0])
+    results['mean_absolute_error'] = '{:.4f}'.format(mean_absolute_error(y, pred))
+    results['median_absolute_error'] = '{:.4f}'.format(median_absolute_error(y, pred))
+    results['mse'] = '{:.4f}'.format(mean_squared_error(y, pred))
+    results['msle'] = '{:.4f}'.format(mean_squared_log_error(y, pred))
+    results['mape'] = '{:.4f}'.format(mean_absolute_percentage_error(y, pred))
+    results['rmse'] = '{:.4f}'.format(np.sqrt(float(results['mse'])))
+
+    results = pd.DataFrame(results).transpose()
+    results = results.reset_index()
+    print('=====================================')
+    print('Evaluating ARIMA - {}'.format(str(crypto_name)))
+    print('=====================================')
+    print(results)
+    
 # =============================================================================
 # Predict Closing Price using FBProphet
 # =============================================================================
@@ -1227,22 +1516,11 @@ def predict_prophet_components():
 
 
     
-def predict_prophet_plotly():
+def predict_prophet_plotly(df_test, df_train):
     
-    crypto = df_train[['Close', 'Name']]
-    crypto = crypto.reset_index()
-    crypto = crypto.rename(columns={'Date': 'ds', 'Close': 'y'})
-    df_prophet = Prophet(changepoint_prior_scale=0.15,yearly_seasonality=True,daily_seasonality=True)
-    df_prophet.fit(crypto)
-
-    df_forecast = df_prophet.make_future_dataframe(periods= len(df_test), freq='D')
-
-    df_forecast = df_prophet.predict(df_forecast)
-    df_forecast['Name'] = df_test['Name']
     df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
-    return df_forecast
 
-def prophet_prediction_plot(request, df_forecast, df_train, df_test, crypto_name):
+
     df_train = go.Scatter(
         x = df_train.index,
         y = df_train['Close'],
@@ -1331,8 +1609,6 @@ def prophet_prediction_plot(request, df_forecast, df_train, df_test, crypto_name
 # =============================================================================
 # Forecasting Price with Prophet 
 # =============================================================================
-from fbprophet import Prophet
-
 def forecast_prophet():
     global df_forecast
     global crypto
@@ -1344,8 +1620,8 @@ def forecast_prophet():
     df_prophet = Prophet(changepoint_prior_scale=0.15,yearly_seasonality=True,daily_seasonality=True)
     df_prophet.fit(crypto)
     
-    estimated_days=91
-    df_forecast = df_prophet.make_future_dataframe(periods= estimated_days*2, freq='D')
+    estimated_days=int(input('Please select the number for days to forecast: '))
+    df_forecast = df_prophet.make_future_dataframe(periods= estimated_days, freq='D')
     
     df_forecast = df_prophet.predict(df_forecast)
     df_forecast['Name'] = crypto['Name']
@@ -1354,17 +1630,9 @@ def forecast_prophet_components():
     df_prophet.plot_components(df_forecast)
 
 
-def forecast_prophet_plotly():
-    crypto = df[['Close', 'Name']]
-    crypto = crypto.reset_index()
-    crypto = crypto.rename(columns={'Date': 'ds', 'Close': 'y'})
-    df_prophet = Prophet(changepoint_prior_scale=0.15,yearly_seasonality=True,daily_seasonality=True)
-    df_prophet.fit(crypto)
 
-    df_forecast = df_prophet.make_future_dataframe(periods= 120, freq='D')
+def prophet_forecast():
 
-    df_forecast = df_prophet.predict(df_forecast)
-    df_forecast['Name'] = crypto['Name']
     df_forecast['Name'] = df_forecast['Name'].replace(np.nan, crypto_name)
 
     actual = go.Scatter(
@@ -1418,7 +1686,7 @@ def forecast_prophet_plotly():
     data = [trend, lower_band, upper_band, actual]
 
     layout = dict(title='Forecasting Closing Price of {} Using FbProphet'.format(crypto_name),
-                 xaxis=dict(title = 'Dates', ticklen=2, zeroline=True))
+                title_font_size=30, xaxis=dict(title = 'Dates', ticklen=2, zeroline=True))
 
     fig = go.Figure(data = data, layout=layout)
 #    fig['layout']['yaxis1']['title']='US Dollars'
@@ -1442,3 +1710,179 @@ def forecast_prophet_plotly():
     fig.update_layout(showlegend=False)
 
     fig.show()
+
+
+
+# =============================================================================
+# Getting the Yahoo Table with Beautiful Soup
+# =============================================================================
+get_yahoo_table()
+
+# =============================================================================
+# creating a list from the crypto-table
+# =============================================================================      
+get_crypto_df()
+     
+# ============================================================================
+# Asking the user for an input   
+# ============================================================================
+please_choose_crypto()
+
+# =============================================================================
+# Collecting info from Yahoo Finance and creating a dataset for that cryptocurrency
+# =============================================================================
+create_df(insert)
+
+create_y(insert)
+
+# =============================================================================
+# Simple Graph that was placed into Django to insure the code works
+# =============================================================================
+
+create_simple_graph_in_Django(df)
+
+# =============================================================================
+# Creating a graph examining the price and moving averages
+# =============================================================================
+price_sma_volume_chart()
+
+candlestick_moving_average()
+
+# =============================================================================
+# Analysing the Histogram and Boxplot for crypto
+# =============================================================================
+
+create_hist_and_box_pct_change()
+
+logged_create_hist_and_box_pct_change()
+
+# =============================================================================
+# Creating a plot with analysis and rolling mean and standard deviation
+# =============================================================================
+test_stationarity(df['Close'])
+
+test_stationarity(y['Close Percentage Change'])
+
+# =============================================================================
+# Splitting the data in Training and Test Data
+# =============================================================================
+## splitting the data 
+#create_train_and_test()
+
+create_train_and_test_period()
+
+# creating a plot for the training and test set
+training_and_test_plot()
+
+# =============================================================================
+# Examining Differences
+# =============================================================================
+create_diff_volume(y['diff'])
+
+create_diff_log_diff()
+
+# =============================================================================
+# Techniques to remove Trend 
+# =============================================================================
+# Not Stationary
+smoothing_with_moving_averages_method()
+
+# Not Stationary
+exponentian_with_moving_averages_method()
+
+# STATIONARY - difference is the best method
+differencing_method()
+
+# =============================================================================
+# Examining CLOSE
+# =============================================================================
+
+simple_seasonal_decompose(y['Close'], 365)
+acf_and_pacf_plots(y['Close'])
+KPSS_test(y['Close'])
+adfuller_test(y['Close'])
+rolling_mean_std(y['Close'], 365)
+
+# =============================================================================
+# Examining LOG CLOSE
+# =============================================================================
+
+simple_seasonal_decompose(y['log_Close'], 365)
+acf_and_pacf_plots(y['log_Close'])
+KPSS_test(y['log_Close'])
+adfuller_test(y['log_Close'])
+rolling_mean_std(y['log_Close'], 365)
+
+# =============================================================================
+# Examining DIFF - STATIONARY
+# =============================================================================
+
+simple_seasonal_decompose(y['diff'], 365)
+acf_and_pacf_plots(y['diff'])
+KPSS_test(y['diff'])
+adfuller_test(y['diff'])
+rolling_mean_std(y['diff'], 365)
+
+# =============================================================================
+# Examining LOG CLOSE DIFF - STATIONARY
+# =============================================================================
+
+simple_seasonal_decompose(y['log_Close_diff'], 365)
+acf_and_pacf_plots(y['log_Close_diff'])
+KPSS_test(y['log_Close_diff'])
+adfuller_test(y['log_Close_diff'])
+rolling_mean_std(y['log_Close_diff'], 365)
+
+
+# =============================================================================
+# Decomposition 
+# =============================================================================
+decomposition(df['Close'], 365)
+
+# =============================================================================
+# ARIMA Models
+# =============================================================================
+# AR Model + evaluation
+run_ARIMA_model(1, 0, 0)
+evaluate_forecast(y.Close,predictions_ARIMA)
+
+# AR + I Model + evaluation
+run_ARIMA_model(1, 1, 0)
+evaluate_forecast(y.Close,predictions_ARIMA)
+
+# ARIMA Model + evaluation
+run_ARIMA_model(1, 1, 1)
+evaluate_forecast(y.Close,predictions_ARIMA)
+
+# MA Model + evaluation
+run_ARIMA_model(0, 0, 1)
+evaluate_forecast(y.Close,predictions_ARIMA)
+
+#AR + I model  + evaluation
+run_ARIMA_model(1, 1, 0)
+evaluate_forecast(y.Close,predictions_ARIMA)
+    
+
+
+# prompting the user to put in the p,q,d themselves  + evaluation
+run_ARIMA_model_user_prompted()
+evaluate_forecast(y.Close,predictions_ARIMA)
+
+# =============================================================================
+# Predicing and Forecasting the Closing Price with FBProphet 
+# =============================================================================
+# predicting price using FBProphet 
+predict_prophet()
+predict_prophet_components()
+predict_prophet_plotly(df_test, df_train)
+
+#Forecasting price using FBProphet 
+forecast_prophet()
+forecast_prophet_components()
+prophet_forecast()
+
+
+
+
+
+

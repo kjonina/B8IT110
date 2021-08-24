@@ -90,7 +90,7 @@ def get_df(json_data):
                    'Total Volume All Currencies (24Hr)': df_cryptolist['volumeAllCurrencies.fmt'],
                    'Circulating Supply': df_cryptolist['circulatingSupply.fmt']})
 #    # writing the dataset to csv
-    df_cryptolist.to_csv(r"df_cryptolist.csv", index =  False)
+#    df_cryptolist.to_csv(r"df_cryptolist.csv", index =  False)
     
 # Run live Website
 def main():

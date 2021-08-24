@@ -184,6 +184,9 @@ Nothing ground-breaking really.
 - fixed a few rangeselectors on graphs
 - changed maplotlib graph in ACF and PACF to display correctly online
 - changed the second input to slider and connected it to the period variable
+- fixed a few bugs under the hood
+
+-finishing off the report
 
 ##### Digital Ocean - Issues
 - cant get prophet to install on Digital Ocean. I think that is because pip install pystan installs pystan 3.1 while fbProphet works on pystan 2.18
